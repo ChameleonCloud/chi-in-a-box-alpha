@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for i in admin_token db_readonly_pass keystone_pass keystone_dbpass glance_pass glance_dbpass nova_pass nova_dbpass nova_placement_pass nova_placement_dbpass neutron_pass neutron_dbpass cinder_pass cinder_dbpass ironic_pass ironic_dbpass ceilometer_pass ceilometer_dbpass gnocchi_pass gnocchi_dbpass blazar_pass blazar_dbpass heat_pass heat_dbpass heat_domain_admin_password swift_pass rabbit_password hammers_dbpass backup_password instance_metrics_writer_password  
+do
+  x=`openssl rand -hex 12`
+  echo "chameleoncloud::${i}: '$x'"
+done
