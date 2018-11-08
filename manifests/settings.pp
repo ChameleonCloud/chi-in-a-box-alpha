@@ -51,8 +51,6 @@ $neutron_ngs_switches = {
 }
 
 $region = 'CIAB' # Region name
-$physnet_interface  = ''
-
 
 ##################################################################
 # NOTE: it should not be necessary to modify anything below here!

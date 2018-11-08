@@ -196,8 +196,8 @@ node default {
         neutron_dbpass               => $neutron_dbpass,
         db_server                    => $db_server,
         metadata_proxy_shared_secret => $metadata_proxy_shared_secret,
-        bridge_uplinks               => ["br-${physnet_interface}:${physnet_interface}" , 'br-ex:p5p1'],
-        bridge_mappings              => ["physnet1:br-${physnet_interface}",'public:br-ex'],
+        bridge_uplinks               => ["br-${private_interface}:${private_interface}", "br-ex:${public_interface}"],
+        bridge_mappings              => ["physnet1:br-${private_interface}", 'public:br-ex'],
         network_vlan_ranges          => 'physnet1:400:410',
         nova_pass                    => $nova_pass,
         keystone_auth_uri            => $keystone_public_endpoint,
@@ -275,7 +275,7 @@ node default {
     }
     # Ironic TFTP interface
     # On the Ironic Provisioning subnet
-    network::interface { "br-${physnet_interface}.${ironic_provisioning_vlan}":
+    network::interface { "br-${private_interface}.${ironic_provisioning_vlan}":
         enable        => true,
         ipaddress     => $ironic_provisioning_ip,
         netmask       => '255.255.255.0',
