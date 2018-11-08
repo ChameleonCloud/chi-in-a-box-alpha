@@ -4,13 +4,13 @@
 prod="/etc/puppet/environments/production"
 mkdir -p $prod
 
-#git add . 
+#git add .
 #git commit -a -m auto-commit
 #git push
 
 # comment this to run faster
 #r10k puppetfile install --puppetfile Puppetfile -v info
 
-rsync -avx manifests $prod
+rsync -avx lib manifests $prod
 
-#/opt/puppetlabs/puppet/bin/puppet agent -t 
+#/opt/puppetlabs/puppet/bin/puppet agent -t
