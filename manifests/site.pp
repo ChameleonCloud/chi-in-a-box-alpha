@@ -46,8 +46,8 @@ node default {
         network::interface { $private_interface:
             enable    => true,
             ipaddress => $private_ip,
-            netmask   => $private_netmask,
-            gateway   => $private_gateway,
+            netmask   => cidr_to_ipv4_netmask($private_subnet),
+            gateway   => cidr_to_ipv4_gateway($private_subnet),
             mtu       => '1500',
             hotplug   => 'yes',
         }
@@ -56,20 +56,20 @@ node default {
         network::interface { $public_interface:
             enable    => true,
             ipaddress => $public_ip,
-            netmask   => $public_netmask,
-            gateway   => $public_gateway,
+            netmask   => cidr_to_ipv4_netmask($public_subnet),
+            gateway   => cidr_to_ipv4_gateway($public_subnet),
             mtu       => '1500',
             defroute  => 'yes',
             peerdns   => 'yes',
-            dns1      => '1.1.1.1',
-            dns2      => '1.1.1.2',
+            dns1      => $dns_servers[0],
+            dns2      => $dns_servers[1],
         }
 
         # Out of Band
         network::interface { $oob_interface:
             enable    => true,
             ipaddress => $oob_ip,
-            netmask   => $oob_netmask,
+            netmask   => cidr_to_ipv4_netmask($oob_subnet),
             mtu       => '1500',
         }
     }
@@ -190,6 +190,8 @@ node default {
     # Neutron
     #
 
+    $tenant_network_public_ip_range = cidr_to_ipv4_range($tenant_network_public_ip_subnet)
+
     class { 'chameleoncloud::neutron':
         network_node                 => $controller,
         neutron_pass                 => $neutron_pass,
@@ -198,7 +200,7 @@ node default {
         metadata_proxy_shared_secret => $metadata_proxy_shared_secret,
         bridge_uplinks               => ["br-${private_interface}:${private_interface}", "br-ex:${public_interface}"],
         bridge_mappings              => ["physnet1:br-${private_interface}", 'public:br-ex'],
-        network_vlan_ranges          => 'physnet1:400:410',
+        network_vlan_ranges          => "physnet1:${tenant_network_vlan_range}",
         nova_pass                    => $nova_pass,
         keystone_auth_uri            => $keystone_public_endpoint,
         keystone_auth_url            => $keystone_admin_endpoint,
@@ -220,11 +222,11 @@ node default {
     neutron_subnet { 'public-subnet':
         ensure           => present,
         network_name     => 'public',
-        cidr             => '129.114.34.128/25',
+        cidr             => $tenant_network_public_ip_subnet,
         ip_version       => '4',
-        gateway_ip       => '129.114.34.254',
-        allocation_pools => 'start=129.114.34.129,end=129.114.34.253',
-        dns_nameservers  => '129.114.97.1',
+        gateway_ip       => $tenant_network_public_ip_range[-2],
+        allocation_pools => "start=${tenant_network_public_ip_range[1]},end=${tenant_network_public_ip_range[-3]}",
+        dns_nameservers  => $dns_servers[0],
         enable_dhcp      => false,
         tenant_name      => 'openstack',
     }
@@ -238,6 +240,11 @@ node default {
     # Ironic
     #
 
+    # Should be last IP in the provisioning subnet
+    $ironic_provisioning_subnet = '10.20.30.0/24'
+    $ironic_provisioning_ip_range = cidr_to_ipv4_range($ironic_provisioning_subnet)
+    $ironic_provisioning_gateway_ip = $ironic_provisioning_ip_range[-2]
+
     neutron_network { 'ironic-provisioning-network':
         ensure                    => present,
         router_external           => false,
@@ -250,11 +257,11 @@ node default {
     neutron_subnet { 'ironic-provisioning-subnet':
         ensure           => present,
         network_name     => 'ironic-provisioning-network',
-        cidr             => '10.20.30.0/24',
+        cidr             => $ironic_provisioning_subnet,
         ip_version       => '4',
-        gateway_ip       => $ironic_provisioning_ip,
-        allocation_pools => 'start=10.20.30.1,end=10.20.30.200',
-        dns_nameservers  => '129.114.97.1',
+        gateway_ip       => $ironic_provisioning_gateway_ip,
+        allocation_pools => "start=${ironic_provisioning_ip_range[1]},end=${ironic_provisioning_ip_range[-3]}",
+        dns_nameservers  => $dns_servers,
         enable_dhcp      => true,
         tenant_name      => 'openstack',
     }
@@ -266,26 +273,25 @@ node default {
         keystone_auth_uri               => $keystone_public_endpoint,
         keystone_auth_url               => $keystone_admin_endpoint,
         db_server                       => $controller,
-        ironic_provision_subnet_gateway => $ironic_provisioning_ip,
+        ironic_provision_subnet_gateway => $ironic_provisioning_gateway_ip,
         ironic_cleaning_network         => 'ironic-provisioning-network',
         ironic_provisioning_network     => 'ironic-provisioning-network',
         create_pxe_images               => false,
         network_node                    => $controller,
         glance_host                     => $controller,
     }
-    # Ironic TFTP interface
-    # On the Ironic Provisioning subnet
+    # ironic_config { 'pxe/image_cache_size':
+    #     value => '300000',
+    # }
+    # Ironic TFTP interface on the Ironic provisioning subnet
     network::interface { "br-${private_interface}.${ironic_provisioning_vlan}":
         enable        => true,
-        ipaddress     => $ironic_provisioning_ip,
+        ipaddress     => $ironic_provisioning_gateway_ip,
         netmask       => '255.255.255.0',
         mtu           => '1500',
         vlan          => 'yes',
         nm_controlled => 'no',
     }
-#    ironic_config { 'pxe/image_cache_size':
-#      value => '300000',
-#    }
     chameleoncloud::service_proxy { 'ironic_public':
         public_ip  => $public_ip,
         service_ip => $controller,

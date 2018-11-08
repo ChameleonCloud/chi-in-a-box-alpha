@@ -13,27 +13,31 @@ $manage_interfaces = true
 $private_ip = ''
 # Internal interface details; only used when `manage_interfaces` is true
 $private_interface = 'eno1'
-$private_netmask = ''
-$private_gateway = ''
+$private_subnet = ''
 
 # IPv4 address on external network
 $public_ip  = ''
 # External interface details; only used when `manage_interfaces` is true
 $public_interface = 'eno2'
-$public_netmask = ''
-$public_gateway = ''
+$public_subnet = ''
 
 # IPv4 address on out-of-band network
 $oob_ip = ''
 # Out-of-band interface details; only used when `manage_interfaces` is true
 $oob_interface = 'eno3'
-$oob_netmask = ''
-
-# IP on provisioning network
-$ironic_provisioning_ip = ''
+$oob_subnet = ''
 
 # VLAN id for provisioning network
-$ironic_provisioning_vlan = ''
+$ironic_provisioning_vlan = '400'
+# VLAN range for all neutron networks - must include provisioning VLAN
+$tenant_network_vlan_range = "${ironic_provisioning_vlan}:410"
+# IPv4 CIDR for subnet that will be used for public IP allocation
+$tenant_network_public_ip_subnet = ''
+
+# DNS servers to use for default DNS resolution on all nodes and Neutron subnets.
+# You must define 2 or some Puppet recipes will not evaluate.
+# (Defaults to Cloudflare DNS)
+$dns_servers = ['1.1.1.1', '1.1.1.2']
 
 $neutron_ngs_switches = {
   'genericswitch:switch1' => {
