@@ -51,7 +51,6 @@ $instance_metrics_writer_username = 'instance_metrics_writer'
 $keystone_admin_endpoint  = "https://${public_endpoint_url}:35357"
 $keystone_public_endpoint = "https://${public_endpoint_url}:5000"
 $memcache_servers = "${internalip}:11211"
-$mysql_override_options = undef
 $rabbit_user = 'openstack'
 # $regions = [
 #   {

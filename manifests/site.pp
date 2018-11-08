@@ -1,5 +1,3 @@
-#hiera_include('classes')
-
 node default {
     # SSL
     $ssl_path_base          = '/etc/pki/tls'
@@ -28,151 +26,151 @@ node default {
 
     file { $ssl_ca:
         ensure => present,
-        #source          => "puppet:///modules/chameleoncloud/$ssl_ca_base",
         source => "file:///root/${ssl_ca_base}",
         mode   => '0644',
         owner  => 'root',
         group  => 'root',
     }
 
-    class { '::ca_cert':
+    class { 'ca_cert':
         install_package => true
     }
 
     ca_cert::ca { 'InCommonRSA-Intermediate':
         ensure => 'trusted',
         source => "file://${ssl_ca}",
-        #source => 'https://www.incommon.org/certificates/repository/incommon-ssl.ca-bundle',
     }
 
-    # Controller Management
-#    network::interface { 'em1' :
-#      enable        => true,
-#      #ipaddress     => $chameleoncloud::params::controller,
-#      ipaddress     => '10.20.111.250',
-#      netmask       => '255.255.254.0',
-#      gateway       => '10.20.111.252', # This should be disabled when the public interface is operational
-#      mtu           => '1500',
-#      hotplug       => 'yes',
-#      peerdns       => 'yes',
-#      dns1          => '10.20.111.252',
-#      #defroute      => 'no'
-#    }
+    # Internal interface (OpenStack services)
+    network::interface { 'em1' :
+        enable    => true,
+        ipaddress => $controller,
+        netmask   => '255.255.254.0',
+        gateway   => '10.20.111.252', # This should be disabled when the public interface is operational
+        mtu       => '1500',
+        hotplug   => 'yes',
+        peerdns   => 'yes',
+        dns1      => '10.20.111.252',
+    }
 
-    # Public Interface ( API / Horizon )
-    network::interface { 'em2' :
-      enable    => true,
-      ipaddress => $public_ip,
-      netmask   => '255.255.255.0',
-      gateway   => '129.114.97.254',
-      mtu       => '1500',
-      peerdns   => 'yes',
-      dns1      => '129.114.97.1',
-      dns2      => '129.114.97.2',
-      defroute  => 'yes',
+    # Public Interface (API / Horizon)
+    network::interface { 'em2':
+        enable    => true,
+        ipaddress => $public_ip,
+        netmask   => '255.255.255.0',
+        gateway   => '129.114.97.254',
+        mtu       => '1500',
+        peerdns   => 'yes',
+        dns1      => '129.114.97.1',
+        dns2      => '129.114.97.2',
+        defroute  => 'yes',
     }
 
     # Out of Band
-    network::interface { 'em3' :
-      enable    => true,
-      ipaddress => '172.16.110.81',
-      netmask   => '255.255.252.0',
-      mtu       => '1500',
+    network::interface { 'em3':
+        enable    => true,
+        ipaddress => '172.16.110.81',
+        netmask   => '255.255.252.0',
+        mtu       => '1500',
     }
-
-    #$public_endpoint_url = 'ciab01.chameleon.tacc.utexas.edu'
-    #$keystone_auth_uri   = "$public_endpoint_url:35357"
-    #$keystone_auth_url   = "$public_endpoint_url:5000"
 
     # Create admin adminrc in /root
     class { 'openstack_extras::auth_file':
-      path        => '/root/adminrc',
-      password    => $admin_password,
-      region_name => $region,
-      auth_url    => $keystone_public_endpoint,
-#      project_name          => $admin_project_name,
-#      tenant_name           => $admin_tenant_name,
+        path        => '/root/adminrc',
+        password    => $admin_password,
+        region_name => $region,
+        auth_url    => $keystone_public_endpoint,
+        # project_name => $admin_project_name,
+        # tenant_name  => $admin_tenant_name,
     }
-#    class { 'openstack_extras::auth_file':
-#      path                  => '/root/openrc',
-#      password              => $admin_password,
-#      region_name           => $region,
-#      auth_url              => $keystone_auth_url,
-#    }
 
     class { 'memcached':
-      listen_ip  => $controller,
-      max_memory => '10%',
+        listen_ip  => $controller,
+        max_memory => '10%',
     }
 
-    class {'::chameleoncloud':}
-    class {'chameleoncloud::rabbitmq':
+    class { 'chameleoncloud': }
+    class { 'chameleoncloud::rabbitmq':
         rabbit_user     => $rabbit_user,
         rabbit_password => $rabbit_password,
     }
 
-    class {'::chameleoncloud::db':
-      backup_password            => $backup_password,
-      server_id                  => '1',
-      blazar_extra_allowed_hosts => undef,
-      gnocchi_allowed_hosts      => undef,
-      db_hammers_user            => 'cc_hammers',
-      db_hammers_pass            => $db_hammers_pass,
-      db_readonly_user           => $db_readonly_user,
-      db_readonly_pass           => $db_readonly_pass,
-      mysql_root                 => $mysql_root,
-      keystone_dbpass            => $keystone_dbpass,
-      neutron_dbpass             => $neutron_dbpass,
-      ironic_dbpass              => $ironic_dbpass,
-      #db_server                   => $controller,
-      db_allowed_hosts           => $controller,
+    class { 'chameleoncloud::db':
+        backup_password            => $backup_password,
+        server_id                  => '1',
+        blazar_extra_allowed_hosts => undef,
+        gnocchi_allowed_hosts      => undef,
+        db_hammers_user            => $db_hammers_user,
+        db_hammers_pass            => $db_hammers_pass,
+        db_readonly_user           => $db_readonly_user,
+        db_readonly_pass           => $db_readonly_pass,
+        mysql_root                 => $mysql_root,
+        keystone_dbpass            => $keystone_dbpass,
+        neutron_dbpass             => $neutron_dbpass,
+        ironic_dbpass              => $ironic_dbpass,
+        db_allowed_hosts           => $controller,
     }
 
-    class { '::chameleoncloud::keystone':
-      admin_token                      => $admin_token,
-      admin_password                   => $admin_password,
-      keystone_dbpass                  => $keystone_dbpass,
-      keystone_auth_email              => 'chameleon-sys@tacc.utexas.edu',
-      keystone_host                    => $controller,
-      public_endpoint                  => $keystone_public_endpoint,
-      admin_endpoint                   => $keystone_admin_endpoint,
-      instance_metrics_writer_username => $instance_metrics_writer_username,
-      instance_metrics_writer_password => $instance_metrics_writer_password,
+    #
+    # Keystone
+    #
+
+    class { 'chameleoncloud::keystone':
+        admin_token                      => $admin_token,
+        admin_password                   => $admin_password,
+        keystone_dbpass                  => $keystone_dbpass,
+        keystone_auth_email              => 'chameleon-sys@tacc.utexas.edu',
+        keystone_host                    => $controller,
+        public_endpoint                  => $keystone_public_endpoint,
+        admin_endpoint                   => $keystone_admin_endpoint,
+        instance_metrics_writer_username => $instance_metrics_writer_username,
+        instance_metrics_writer_password => $instance_metrics_writer_password,
     }
+
+    #
+    # Horizon
+    #
 
     class { 'chameleoncloud::horizon':
-      theme_base_dir     => '/opt/theme',
-      theme_name         => 'chameleon',
-      help_url           => 'https://www.chameleoncloud.org/docs/bare-metal-user-guide/',
-      horizon_secret_key => $horizon_secret_key,
-      keystone_auth_uri  => $keystone_public_endpoint,
-      memcache_server_ip => $controller,
-#      portal_api_base_url        => 'https://www.chameleoncloud.org',
+        theme_base_dir     => '/opt/theme',
+        theme_name         => 'chameleon',
+        help_url           => 'https://www.chameleoncloud.org/docs/bare-metal-user-guide/',
+        horizon_secret_key => $horizon_secret_key,
+        keystone_auth_uri  => $keystone_public_endpoint,
+        memcache_server_ip => $controller,
+        # portal_api_base_url => 'https://www.chameleoncloud.org',
     }
 
+    #
+    # Blazar
+    #
 
     class { 'chameleoncloud::blazar':
-      blazar_host                   => $controller,
-      blazar_pass                   => $blazar_pass,
-      blazar_dbpass                 => $blazar_dbpass,
-      keystone_auth_uri             => $keystone_public_endpoint,
-      keystone_auth_url             => $keystone_admin_endpoint,
-      public_endpoint_url           => $public_endpoint_url,
-      notify_hours_before_lease_end => '0',
-      default_max_lease_duration    => '604800',
-      project_max_lease_durations   => 'Chameleon:-1,admin:-1,openstack:-1,maintenance:-1',
-      #usage_enforcement             => 'True',
-      #usage_db_host                 => 'chi.uc.chameleoncloud.org',
-      usage_db_host                 => '',
-      usage_default_allocated       => '20000.0',
-      #email_relay                   => 'relay.tacc.utexas.edu',
-      require                       => Class['chameleoncloud::horizon']
+        blazar_host                   => $controller,
+        blazar_pass                   => $blazar_pass,
+        blazar_dbpass                 => $blazar_dbpass,
+        keystone_auth_uri             => $keystone_public_endpoint,
+        keystone_auth_url             => $keystone_admin_endpoint,
+        public_endpoint_url           => $public_endpoint_url,
+        notify_hours_before_lease_end => '0',
+        default_max_lease_duration    => '604800',
+        project_max_lease_durations   => 'Chameleon:-1,admin:-1,openstack:-1,maintenance:-1',
+        # usage_enforcement             => 'True',
+        # usage_db_host                 => 'chi.uc.chameleoncloud.org',
+        usage_db_host                 => '',
+        usage_default_allocated       => '20000.0',
+        # email_relay                   => 'relay.tacc.utexas.edu',
+        require                       => Class['chameleoncloud::horizon']
     }
-    chameleoncloud::service_proxy { 'blazar_public' :
+    chameleoncloud::service_proxy { 'blazar_public':
         public_ip  => $public_ip,
         service_ip => $controller,
         port       => '1234',
     }
+
+    #
+    # Glance
+    #
 
     class { 'chameleoncloud::glance':
         glance_host         => $controller,
@@ -182,11 +180,15 @@ node default {
         keystone_auth_uri   => $keystone_public_endpoint,
         keystone_auth_url   => $keystone_admin_endpoint,
     }
-    chameleoncloud::service_proxy { 'glance_public' :
+    chameleoncloud::service_proxy { 'glance_public':
         public_ip  => $public_ip,
         service_ip => $controller,
         port       => '9292',
     }
+
+    #
+    # Neutron
+    #
 
     class { 'chameleoncloud::neutron':
         network_node                 => $controller,
@@ -204,26 +206,9 @@ node default {
         rabbit_user                  => $rabbit_user,
         rabbit_password              => $rabbit_password,
     }
-    chameleoncloud::service_proxy { 'neutron_public' :
-        public_ip  => $public_ip,
-        service_ip => $controller,
-        port       => '9696',
-    }
     class { 'chameleoncloud::neutron::networking_generic_switch':
         switches    => $neutron_ngs_switches,
     }
-
-    # Ironic TFTP interface
-    # On the Ironic Provisioning subnet
-    network::interface { "br-${physnet_interface}.${ironic_provisioning_vlan}" :
-        enable        => true,
-        ipaddress     => $ironic_provisioning_ip,
-        netmask       => '255.255.255.0',
-        mtu           => '1500',
-        vlan          => 'yes',
-        nm_controlled => 'no',
-    }
-
     neutron_network { 'public':
         ensure                    => present,
         router_external           => true,
@@ -243,6 +228,15 @@ node default {
         enable_dhcp      => false,
         tenant_name      => 'openstack',
     }
+    chameleoncloud::service_proxy { 'neutron_public':
+        public_ip  => $public_ip,
+        service_ip => $controller,
+        port       => '9696',
+    }
+
+    #
+    # Ironic
+    #
 
     neutron_network { 'ironic-provisioning-network':
         ensure                    => present,
@@ -264,7 +258,6 @@ node default {
         enable_dhcp      => true,
         tenant_name      => 'openstack',
     }
-
     class { 'chameleoncloud::ironic':
         ironic_host                     => $controller,
         ironic_pass                     => $ironic_pass,
@@ -279,16 +272,29 @@ node default {
         create_pxe_images               => false,
         network_node                    => $controller,
         glance_host                     => $controller,
-    } #->
+    }
+    # Ironic TFTP interface
+    # On the Ironic Provisioning subnet
+    network::interface { "br-${physnet_interface}.${ironic_provisioning_vlan}":
+        enable        => true,
+        ipaddress     => $ironic_provisioning_ip,
+        netmask       => '255.255.255.0',
+        mtu           => '1500',
+        vlan          => 'yes',
+        nm_controlled => 'no',
+    }
 #    ironic_config { 'pxe/image_cache_size':
 #      value => '300000',
 #    }
-#
-    chameleoncloud::service_proxy { 'ironic_public' :
+    chameleoncloud::service_proxy { 'ironic_public':
         public_ip  => $public_ip,
         service_ip => $controller,
         port       => '6385',
     }
+
+    #
+    # Nova
+    #
 
     class { 'chameleoncloud::nova':
         nova_host                    => $controller,
@@ -311,12 +317,12 @@ node default {
         ironic_pass                  => $ironic_pass,
         network_node                 => $controller,
     }
-    chameleoncloud::service_proxy { 'nova_public' :
+    chameleoncloud::service_proxy { 'nova_public':
         public_ip  => $public_ip,
         service_ip => $controller,
         port       => '8774',
     }
-    chameleoncloud::service_proxy { 'nova_placement_public' :
+    chameleoncloud::service_proxy { 'nova_placement_public':
         public_ip  => $public_ip,
         service_ip => $controller,
         port       => '8780',
