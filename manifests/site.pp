@@ -203,7 +203,7 @@ node ciab01.chameleon.tacc.utexas.edu {
         nova_pass                    => $nova_pass,
         keystone_auth_uri            => $keystone_public_endpoint,
         keystone_auth_url            => $keystone_admin_endpoint,
-        rabbit_host                  => $rabbit_host,
+        rabbit_host                  => $controller,
         rabbit_user                  => $rabbit_user,
         rabbit_password              => $rabbit_password,
     }
