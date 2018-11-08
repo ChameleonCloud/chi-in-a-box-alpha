@@ -90,12 +90,12 @@ mod 'openstack-ironic',
     :branch => 'stable/ocata'
 
 mod 'oslo',
-    :git => 'https://github.com/openstack/puppet-oslo.git'
+    :git => 'https://github.com/openstack/puppet-oslo.git',
+    :branch => 'stable/ocata'
+
+mod 'blazar',
+    :git => 'https://github.com/ChameleonCloud/puppet-blazar.git'
 
 mod 'chameleoncloud',
     :git => 'git@github.com:ChameleonCloud/puppet-chameleoncloud.git',
     :branch => 'ciab'
-
-mod 'blazar',
-    :git => 'git@github.com:ChameleonCloud/puppet-blazar.git'
-
