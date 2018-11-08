@@ -24,10 +24,10 @@ $public_netmask = ''
 $public_gateway = ''
 
 # IPv4 address on out-of-band network
-$oop_ip = ''
+$oob_ip = ''
 # Out-of-band interface details; only used when `manage_interfaces` is true
-$oop_interface = 'eno3'
-$oop_netmask = ''
+$oob_interface = 'eno3'
+$oob_netmask = ''
 
 # IP on provisioning network
 $ironic_provisioning_ip = ''
@@ -50,8 +50,7 @@ $neutron_ngs_switches = {
   }
 }
 
-# $email = '' # Email address for...
-# $region = 'CIAB' # Region name
+$region = 'CIAB' # Region name
 $physnet_interface  = ''
 
 
@@ -75,14 +74,6 @@ $keystone_admin_endpoint  = "https://${public_endpoint_url}:35357"
 $keystone_public_endpoint = "https://${public_endpoint_url}:5000"
 $memcache_servers = "${controller}:11211"
 $rabbit_user = 'openstack'
-# $regions = [
-#   {
-#     'region_name' => $region,
-#     'blazar_dbserver' => $db_server,
-#     'blazar_dbpass' => $blazar_dbpass,
-#     'site' => 'tacc_ciab'
-#   }
-# ]
 
 #
 # The following are generated via `gensettings`
@@ -121,3 +112,12 @@ $nova_placement_dbpass = ''
 $nova_placement_pass = ''
 $rabbit_password = ''
 $swift_pass = ''
+
+$regions = [
+  {
+    'region_name' => $region,
+    'blazar_dbserver' => $db_server,
+    'blazar_dbpass' => $blazar_dbpass,
+    'site' => $fqdn
+  }
+]
