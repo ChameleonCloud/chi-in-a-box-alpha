@@ -41,37 +41,37 @@ node default {
         source => "file://${ssl_ca}",
     }
 
-    # Internal interface (OpenStack services)
-    network::interface { 'em1' :
-        enable    => true,
-        ipaddress => $controller,
-        netmask   => '255.255.254.0',
-        gateway   => '10.20.111.252', # This should be disabled when the public interface is operational
-        mtu       => '1500',
-        hotplug   => 'yes',
-        peerdns   => 'yes',
-        dns1      => '10.20.111.252',
-    }
+    if $manage_interfaces {
+        # Internal interface (OpenStack services)
+        network::interface { $private_interface:
+            enable    => true,
+            ipaddress => $private_ip,
+            netmask   => $private_netmask,
+            gateway   => $private_gateway,
+            mtu       => '1500',
+            hotplug   => 'yes',
+        }
 
-    # Public Interface (API / Horizon)
-    network::interface { 'em2':
-        enable    => true,
-        ipaddress => $public_ip,
-        netmask   => '255.255.255.0',
-        gateway   => '129.114.97.254',
-        mtu       => '1500',
-        peerdns   => 'yes',
-        dns1      => '129.114.97.1',
-        dns2      => '129.114.97.2',
-        defroute  => 'yes',
-    }
+        # Public Interface (API / Horizon)
+        network::interface { $public_interface:
+            enable    => true,
+            ipaddress => $public_ip,
+            netmask   => $public_netmask,
+            gateway   => $public_gateway,
+            mtu       => '1500',
+            defroute  => 'yes',
+            peerdns   => 'yes',
+            dns1      => '1.1.1.1',
+            dns2      => '1.1.1.2',
+        }
 
-    # Out of Band
-    network::interface { 'em3':
-        enable    => true,
-        ipaddress => '172.16.110.81',
-        netmask   => '255.255.252.0',
-        mtu       => '1500',
+        # Out of Band
+        network::interface { $oob_interface:
+            enable    => true,
+            ipaddress => $oob_ip,
+            netmask   => $oob_netmask,
+            mtu       => '1500',
+        }
     }
 
     # Create admin adminrc in /root
@@ -119,7 +119,7 @@ node default {
         admin_token                      => $admin_token,
         admin_password                   => $admin_password,
         keystone_dbpass                  => $keystone_dbpass,
-        keystone_auth_email              => 'chameleon-sys@tacc.utexas.edu',
+        keystone_auth_email              => $email,
         keystone_host                    => $controller,
         public_endpoint                  => $keystone_public_endpoint,
         admin_endpoint                   => $keystone_admin_endpoint,

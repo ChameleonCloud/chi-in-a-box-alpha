@@ -1,10 +1,33 @@
-# User-defined settings
+################
+# User settings
+################
+
+$email = ''
+
+# Whether to instruct Puppet to manage the network interfaces.
+# If true, Puppet will create network scripts for each of the 3 interfaces
+# defined below (internal, external, out-of-band.)
+$manage_interfaces = true
 
 # IPv4 address on internal network
-$internalip = ''
+$private_ip = ''
+# Internal interface details; only used when `manage_interfaces` is true
+$private_interface = 'eno1'
+$private_netmask = ''
+$private_gateway = ''
 
 # IPv4 address on external network
 $public_ip  = ''
+# External interface details; only used when `manage_interfaces` is true
+$public_interface = 'eno2'
+$public_netmask = ''
+$public_gateway = ''
+
+# IPv4 address on out-of-band network
+$oop_ip = ''
+# Out-of-band interface details; only used when `manage_interfaces` is true
+$oop_interface = 'eno3'
+$oop_netmask = ''
 
 # IP on provisioning network
 $ironic_provisioning_ip = ''
@@ -40,17 +63,17 @@ $physnet_interface  = ''
 # Default settings
 #
 
-$controller = $internalip
+$controller = $private_ip
 $public_endpoint_url = $fqdn
 
-$db_allowed_hosts = $internalip
+$db_allowed_hosts = $controller
 $db_hammers_user = 'cc_hammers'
 $db_readonly_user = 'readonly'
-$db_server = $internalip
+$db_server = $controller
 $instance_metrics_writer_username = 'instance_metrics_writer'
 $keystone_admin_endpoint  = "https://${public_endpoint_url}:35357"
 $keystone_public_endpoint = "https://${public_endpoint_url}:5000"
-$memcache_servers = "${internalip}:11211"
+$memcache_servers = "${controller}:11211"
 $rabbit_user = 'openstack'
 # $regions = [
 #   {
