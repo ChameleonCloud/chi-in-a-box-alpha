@@ -1,6 +1,6 @@
 #hiera_include('classes')
 
-node ciab01.chameleon.tacc.utexas.edu {
+node default {
 #node qa.tacc.chameleoncloud.org {
     #notify {"CIAB DEBUG $admin_token":}
 
