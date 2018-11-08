@@ -37,7 +37,7 @@ Install puppet and r10k:
     yum update selinux-* nss curl libcurl -y
     systemctl enable puppetmaster
     systemctl start puppetmaster
-    gem install r10k
+    gem install --no-rdoc --no-ri r10k -v 2.6.4
 
 Determine your private ip address and fqdn:
 
