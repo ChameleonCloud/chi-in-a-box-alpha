@@ -6,6 +6,7 @@ Puppet::Functions.create_function(:cidr_to_ipv4_netmask) do
   end
 
   def cidr_to_ipv4_netmask(cidr)
-    IPAddr.new('255.255.255.255').mask(cidr).to_s
+    prefix = cidr.split('/').last.to_i
+    IPAddr.new('255.255.255.255').mask(prefix).to_s
   end
 end
