@@ -50,15 +50,15 @@ node default {
           owner  => 'root',
           group  => 'root',
       }
+    }
 
-      class { 'ca_cert':
-          install_package => true
-      }
+    class { 'ca_cert':
+        install_package => true
+    }
 
-      ca_cert::ca { "${fqdn}-Intermediate":
-          ensure => 'trusted',
-          source => "file://${ssl_ca}",
-      }
+    ca_cert::ca { "${fqdn}-Intermediate":
+        ensure => 'trusted',
+        source => "file://${ssl_ca}",
     }
 
     if $manage_interfaces {
