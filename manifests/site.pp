@@ -1,44 +1,51 @@
 node default {
-    # SSL
-    $ssl_path_base          = '/etc/pki/tls'
-    $ssl_cert_base          = "${fqdn}.cer"
-    $ssl_key_base           = "${fqdn}.key"
-    $ssl_ca_base            = "${fqdn}-interm.cer"
-    $ssl_cert               = "${ssl_path_base}/certs/${ssl_cert_base}"
-    $ssl_key                = "${ssl_path_base}/private/${ssl_key_base}"
-    $ssl_ca                 = "${ssl_path_base}/certs/${ssl_ca_base}"
 
-    file { $ssl_cert:
-        ensure => present,
-        source => "file:///root/${ssl_cert_base}",
-        mode   => '0644',
-        owner  => 'root',
-        group  => 'root',
-    }
+    if $ssl_letsencrypt {
+      $ssl_path_base = "/etc/letsencrypt/live/${fqdn}"
+      $ssl_cert = "${ssl_path_base}/fullchain.pem"
+      $ssl_key = "${ssl_path_base}/privkey.pem"
+      $ssl_ca = "${ssl_path_base}/chain.pem"
+    } else {
+      $ssl_path_base          = '/etc/pki/tls'
+      $ssl_cert_base          = "${fqdn}.cer"
+      $ssl_key_base           = "${fqdn}.key"
+      $ssl_ca_base            = "${fqdn}-interm.cer"
+      $ssl_cert               = "${ssl_path_base}/certs/${ssl_cert_base}"
+      $ssl_key                = "${ssl_path_base}/private/${ssl_key_base}"
+      $ssl_ca                 = "${ssl_path_base}/certs/${ssl_ca_base}"
 
-    file { $ssl_key:
-        ensure => present,
-        source => "file:///root/${ssl_key_base}",
-        mode   => '0644',
-        owner  => 'root',
-        group  => 'root',
-    }
+      file { $ssl_cert:
+          ensure => present,
+          source => "file:///root/${ssl_cert_base}",
+          mode   => '0644',
+          owner  => 'root',
+          group  => 'root',
+      }
 
-    file { $ssl_ca:
-        ensure => present,
-        source => "file:///root/${ssl_ca_base}",
-        mode   => '0644',
-        owner  => 'root',
-        group  => 'root',
-    }
+      file { $ssl_key:
+          ensure => present,
+          source => "file:///root/${ssl_key_base}",
+          mode   => '0600',
+          owner  => 'root',
+          group  => 'root',
+      }
 
-    class { 'ca_cert':
-        install_package => true
-    }
+      file { $ssl_ca:
+          ensure => present,
+          source => "file:///root/${ssl_ca_base}",
+          mode   => '0644',
+          owner  => 'root',
+          group  => 'root',
+      }
 
-    ca_cert::ca { 'InCommonRSA-Intermediate':
-        ensure => 'trusted',
-        source => "file://${ssl_ca}",
+      class { 'ca_cert':
+          install_package => true
+      }
+
+      ca_cert::ca { "${fqdn}-Intermediate":
+          ensure => 'trusted',
+          source => "file://${ssl_ca}",
+      }
     }
 
     if $manage_interfaces {

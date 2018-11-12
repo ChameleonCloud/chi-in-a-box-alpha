@@ -56,6 +56,18 @@ $neutron_ngs_switches = {
 
 $region = 'CIAB' # Region name
 
+# SSL certificate loading
+#
+# Whether to user LetsEncrypt certificates - if true, certificates will be
+# automatically loaded from the default certbot directory of /etc/letsencrypt/live/${fqdn}
+$ssl_letsencrypt = false
+
+# Note: if you are providing your own certificates, they are expected to be in
+# /root at the following locations:
+#   - Certificate: "${fqdn}.cer"
+#   - Private key: "${fqdn}.key"
+#   - Intermediate certificate: "${fqdn}-interm.cer"
+
 ##################################################################
 # NOTE: it should not be necessary to modify anything below here!
 ##################################################################
