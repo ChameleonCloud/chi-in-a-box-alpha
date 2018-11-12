@@ -36,8 +36,8 @@ $tenant_network_public_ip_subnet = ''
 
 # DNS servers to use for default DNS resolution on all nodes and Neutron subnets.
 # You must define 2 or some Puppet recipes will not evaluate.
-# (Defaults to Cloudflare DNS)
-$dns_servers = ['1.1.1.1', '1.1.1.2']
+# (Defaults to Google DNS)
+$dns_servers = ['8.8.8.8', '8.8.4.4']
 
 $neutron_ngs_switches = {
   'genericswitch:switch1' => {
