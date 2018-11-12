@@ -1,18 +1,31 @@
 node default {
 
+    $ssl_path_base = '/etc/pki/tls'
+    $ssl_cert      = "${ssl_path_base}/certs/${fqdn}.cer"
+    $ssl_key       = "${ssl_path_base}/private/${fqdn}.key"
+    $ssl_ca        = "${ssl_path_base}/certs/${fqdn}-interm.cer"
+
     if $ssl_letsencrypt {
-      $ssl_path_base = "/etc/letsencrypt/live/${fqdn}"
-      $ssl_cert = "${ssl_path_base}/fullchain.pem"
-      $ssl_key = "${ssl_path_base}/privkey.pem"
-      $ssl_ca = "${ssl_path_base}/chain.pem"
+      $ssl_letsencrypt_base = "/etc/letsencrypt/live/${fqdn}"
+
+      file { $ssl_cert:
+        ensure => 'link',
+        target => "${ssl_letsencrypt_base}/fullchain.pem",
+      }
+
+      file { $ssl_key:
+        ensure => 'link',
+        target => "${ssl_letsencrypt_base}/privkey.pem",
+      }
+
+      file { $ssl_ca:
+        ensure => 'link',
+        target => "${ssl_letsencrypt_base}/chain.pem",
+      }
     } else {
-      $ssl_path_base          = '/etc/pki/tls'
-      $ssl_cert_base          = "${fqdn}.cer"
-      $ssl_key_base           = "${fqdn}.key"
-      $ssl_ca_base            = "${fqdn}-interm.cer"
-      $ssl_cert               = "${ssl_path_base}/certs/${ssl_cert_base}"
-      $ssl_key                = "${ssl_path_base}/private/${ssl_key_base}"
-      $ssl_ca                 = "${ssl_path_base}/certs/${ssl_ca_base}"
+      $ssl_cert_base = basename($ssl_cert)
+      $ssl_key_base  = basename($ssl_key)
+      $ssl_ca_base   = basename($ssl_ca)
 
       file { $ssl_cert:
           ensure => present,
