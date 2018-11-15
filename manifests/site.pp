@@ -355,4 +355,6 @@ node default {
         service_ip => $controller,
         port       => '8780',
     }
+
+    nova_flavor { 'baremetal': }
 }
