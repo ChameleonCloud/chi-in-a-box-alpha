@@ -65,27 +65,21 @@ node default {
         if $private_ip =~ Stdlib::IP::Address::V4::Nosubnet {
             # Internal interface (OpenStack services)
             network::interface { $private_interface:
-                enable    => true,
-                ipaddress => $private_ip,
-                netmask   => cidr_to_ipv4_netmask($private_subnet),
-                gateway   => cidr_to_ipv4_gateway($private_subnet),
-                mtu       => '1500',
-                hotplug   => 'yes',
+                enable  => true,
+                mtu     => '1500',
+                hotplug => 'yes',
             }
         }
 
         if $public_ip =~ Stdlib::IP::Address::V4::Nosubnet {
             # Public Interface (API / Horizon)
             network::interface { $public_interface:
-                enable    => true,
-                ipaddress => $public_ip,
-                netmask   => cidr_to_ipv4_netmask($public_subnet),
-                gateway   => cidr_to_ipv4_gateway($public_subnet),
-                mtu       => '1500',
-                defroute  => 'yes',
-                peerdns   => 'yes',
-                dns1      => $dns_servers[0],
-                dns2      => $dns_servers[1],
+                enable   => true,
+                mtu      => '1500',
+                defroute => 'yes',
+                peerdns  => 'yes',
+                dns1     => $dns_servers[0],
+                dns2     => $dns_servers[1],
             }
         }
 
