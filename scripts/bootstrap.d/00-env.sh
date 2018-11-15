@@ -1,0 +1,1 @@
+OPENSTACK_RELEASE=ocata
