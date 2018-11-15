@@ -212,6 +212,10 @@ node default {
 
     $tenant_network_public_ip_range = cidr_to_ipv4_range($tenant_network_public_ip_subnet)
 
+    class { 'chameleoncloud::neutron::networking_generic_switch':
+        switches    => $neutron_ngs_switches,
+    }
+
     class { 'chameleoncloud::neutron':
         network_node                 => $controller,
         neutron_pass                 => $neutron_pass,
@@ -228,9 +232,7 @@ node default {
         rabbit_user                  => $rabbit_user,
         rabbit_password              => $rabbit_password,
     }
-    class { 'chameleoncloud::neutron::networking_generic_switch':
-        switches    => $neutron_ngs_switches,
-    }
+
     neutron_network { 'public':
         ensure                    => present,
         router_external           => true,
