@@ -20,12 +20,16 @@ $public_ip  = ''
 # External interface details; only used when `manage_interfaces` is true
 $public_interface = 'eno2'
 $public_subnet = ''
+$public_gateway = ''
 
 # IPv4 address on out-of-band network
 $oob_ip = ''
 # Out-of-band interface details; only used when `manage_interfaces` is true
 $oob_interface = 'eno3'
 $oob_subnet = ''
+
+$external_interface = 'p5p1'
+$integration_interface = 'p5p2'
 
 # VLAN id for provisioning network
 $ironic_provisioning_vlan = '400'
