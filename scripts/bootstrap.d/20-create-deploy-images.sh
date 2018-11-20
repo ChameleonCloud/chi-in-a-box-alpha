@@ -18,7 +18,7 @@ os_image_create() {
       --public \
       --disk-format aki \
       --container-format aki \
-      --file "$file"
+      --file "$file" \
       "$name"
 }
 
@@ -27,3 +27,5 @@ DEPLOY_KERNEL="$(os_image_create deploy_kernel coreos_production_pxe-stable-$OPE
 
 echo "Pulling ramdisk image from $file_base."
 DEPLOY_RAMDISK="$(os_image_create deploy_ramdisk coreos_production_pxe_image-oem-stable-$OPENSTACK_RELEASE.cpio.gz)"
+
+echo

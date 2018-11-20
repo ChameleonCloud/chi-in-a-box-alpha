@@ -1,6 +1,7 @@
 echo "################################"
 echo " Configuration pre-check"
 echo "################################"
+echo
 
 ironic_enabled_network_interfaces() {
   crudini --get /etc/ironic/ironic.conf DEFAULT enabled_network_interfaces
@@ -12,4 +13,5 @@ if [[ "$(ironic_enabled_network_interfaces)" != "flat,neutron" ]]; then
   exit 1
 else
   echo "All checks passed."
+  echo
 fi
