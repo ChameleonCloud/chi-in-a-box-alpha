@@ -4,27 +4,26 @@ echo "################################"
 echo " Deployment image setup"
 echo "################################"
 echo
-echo "Pulling kernel and ramdisk images from $file_base."
-echo
-
-wget "$file_base/coreos_production_pxe-stable-$OPENSTACK_RELEASE.vmlinuz"
-wget "$file_base/coreos_production_pxe_image-oem-stable-$OPENSTACK_RELEASE.cpio.gz"
 
 os_image_create() {
   local name="$1"
   local file="$2"
 
-  openstack image create \
-    --public \
-    --disk-format aki \
-    --container-format aki \
-    --file "$file"
-    "$name"
+  if [[ ! -e "$file" ]]; then
+    wget -q "$file_base/$file"
+  fi
+
+  openstack image show "$name" -f value -c id \
+   || openstack image create -f value -c id \
+      --public \
+      --disk-format aki \
+      --container-format aki \
+      --file "$file"
+      "$name"
 }
 
-# Publish for future steps
-DEPLOY_KERNEL="$(os_image_create deploy_kernel ./coreos_production_pxe-stable-ocata.vmlinuz)"
-DEPLOY_RAMDISK="$(os_image_create deploy_ramdisk ./coreos_production_pxe_image-oem-stable-ocata.cpio.gz)"
+echo "Pulling kernel image from $file_base."
+DEPLOY_KERNEL="$(os_image_create deploy_kernel coreos_production_pxe-stable-$OPENSTACK_RELEASE.vmlinuz)"
 
-rm -f ./coreos_production_pxe-stable-ocata.vmlinuz
-rm -f ./coreos_production_pxe_image-oem-stable-ocata.cpio.gz
+echo "Pulling ramdisk image from $file_base."
+DEPLOY_RAMDISK="$(os_image_create deploy_ramdisk coreos_production_pxe_image-oem-stable-$OPENSTACK_RELEASE.cpio.gz)"

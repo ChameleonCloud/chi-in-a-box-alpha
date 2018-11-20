@@ -21,7 +21,7 @@ create_node() {
   local ipmi_address="$(node_config "$node" "ipmi_address")"
   local ipmi_terminal_port="$(node_config "$node" "ipmi_terminal_port")"
 
-  openstack baremetal node create --format value --column uuid \
+  openstack baremetal node create -f value -c UUID \
     --name $node \
     --driver pxe_ipmitool_socat \
     --driver-info ipmi_username=$ipmi_username \
@@ -44,7 +44,7 @@ create_node_port() {
 
   local mac_address = "$(node_config "$node" "mac_address")"
 
-  openstack baremetal port create --format value --column uuid \
+  openstack baremetal port create -f value -c UUID \
     --node "$node_uuid" \
     "$mac_address"
 }

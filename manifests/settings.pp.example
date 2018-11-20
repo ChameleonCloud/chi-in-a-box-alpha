@@ -7,7 +7,7 @@ $email = ''
 # Whether to instruct Puppet to manage the network interfaces.
 # If true, Puppet will create network scripts for each of the 3 interfaces
 # defined below (internal, external, out-of-band.)
-$manage_interfaces = true
+$manage_interfaces = false
 
 # IPv4 address on internal network
 $private_ip = ''
