@@ -43,9 +43,9 @@ create_node_port() {
   local node="$1"
   local node_uuid="$2"
 
-  local mac_address = "$(node_config "$node" "mac_address")"
+  local mac_address="$(node_config "$node" "mac_address")"
 
-  openstackl baremetal port list --node "$node_uuid" -f value -c UUID \
+  openstack baremetal port list --node "$node_uuid" -f value -c UUID \
     || openstack baremetal port create -f value -c UUID \
         --node "$node_uuid" \
         "$mac_address"
