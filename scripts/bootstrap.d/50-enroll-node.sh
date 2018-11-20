@@ -21,21 +21,22 @@ create_node() {
   local ipmi_address="$(node_config "$node" "ipmi_address")"
   local ipmi_terminal_port="$(node_config "$node" "ipmi_terminal_port")"
 
-  openstack baremetal node create -f value -c uuid \
-    --name $node \
-    --driver pxe_ipmitool_socat \
-    --driver-info ipmi_username=$ipmi_username \
-    --driver-info ipmi_password=$ipmi_password \
-    --driver-info ipmi_address=$ipmi_address \
-    --driver-info ipmi_terminal_port=$ipmi_terminal_port \
-    --driver-info deploy_kernel=$DEPLOY_KERNEL \
-    --driver-info deploy_ramdisk=$DEPLOY_RAMDISK \
-    --network-interface neutron \
-    --property capabilities="boot_option:local" \
-    --property cpus=48 \
-    --property cpu_arch=x86_64 \
-    --property memory_mb=128000 \
-    --property local_gb=200
+  openstack baremetal node show "$node" -f value -c uuid \
+    || openstack baremetal node create -f value -c uuid \
+        --name "$node" \
+        --driver pxe_ipmitool_socat \
+        --driver-info "ipmi_username=$ipmi_username" \
+        --driver-info "ipmi_password=$ipmi_password" \
+        --driver-info "ipmi_address=$ipmi_address" \
+        --driver-info "ipmi_terminal_port=$ipmi_terminal_port" \
+        --driver-info "deploy_kernel=$DEPLOY_KERNEL" \
+        --driver-info "deploy_ramdisk=$DEPLOY_RAMDISK" \
+        --network-interface neutron \
+        --property capabilities="boot_option:local" \
+        --property cpus=48 \
+        --property cpu_arch=x86_64 \
+        --property memory_mb=128000 \
+        --property local_gb=200
 }
 
 create_node_port() {
@@ -44,9 +45,10 @@ create_node_port() {
 
   local mac_address = "$(node_config "$node" "mac_address")"
 
-  openstack baremetal port create -f value -c UUID \
-    --node "$node_uuid" \
-    "$mac_address"
+  openstackl baremetal port list --node "$node_uuid" -f value -c UUID \
+    || openstack baremetal port create -f value -c UUID \
+        --node "$node_uuid" \
+        "$mac_address"
 }
 
 for node in $nodes; do
