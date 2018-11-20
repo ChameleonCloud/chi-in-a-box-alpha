@@ -65,8 +65,6 @@ node default {
         if $private_ip =~ Stdlib::IP::Address::V4::Nosubnet {
             # Internal interface (OpenStack services)
             network::interface { $private_interface:
-		ipaddress => $private_ip,
-                netmask   => cidr_to_ipv4_netmask($private_subnet),
                 enable  => true,
                 mtu     => '1500',
                 hotplug => 'yes',
@@ -76,9 +74,6 @@ node default {
         if $public_ip =~ Stdlib::IP::Address::V4::Nosubnet {
             # Public Interface (API / Horizon)
             network::interface { $public_interface:
-		ipaddress => $public_ip,
-                netmask   => cidr_to_ipv4_netmask($public_subnet),
-		gateway   => $public_gateway,
                 enable   => true,
                 mtu      => '1500',
                 defroute => 'yes',
@@ -227,8 +222,8 @@ node default {
         neutron_dbpass               => $neutron_dbpass,
         db_server                    => $db_server,
         metadata_proxy_shared_secret => $metadata_proxy_shared_secret,
-        bridge_uplinks               => ["br-${integration_interface}:${integration_interface}", "br-ex:${external_interface}"],
-        bridge_mappings              => ["physnet1:br-${integration_interface}", 'public:br-ex'],
+        bridge_uplinks               => ["br-int:${neutron_private_interface}", "br-ex:${neutron_public_interface}"],
+        bridge_mappings              => ['physnet1:br-int', 'public:br-ex'],
         network_vlan_ranges          => "physnet1:${tenant_network_vlan_range}",
         nova_pass                    => $nova_pass,
         keystone_auth_uri            => $keystone_public_endpoint,
@@ -311,7 +306,7 @@ node default {
     #     value => '300000',
     # }
     # Ironic TFTP interface on the Ironic provisioning subnet
-    network::interface { "br-${integration_interface}.${ironic_provisioning_vlan}":
+    network::interface { "br-int.${ironic_provisioning_vlan}":
         enable        => true,
         ipaddress     => $ironic_provisioning_gateway_ip,
         netmask       => '255.255.255.0',
