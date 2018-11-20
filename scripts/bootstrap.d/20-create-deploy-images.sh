@@ -23,9 +23,9 @@ os_image_create() {
 }
 
 echo "Pulling kernel image from $file_base."
-DEPLOY_KERNEL="$(os_image_create deploy_kernel coreos_production_pxe-stable-$OPENSTACK_RELEASE.vmlinuz)"
+export DEPLOY_KERNEL="$(os_image_create deploy_kernel coreos_production_pxe-stable-$OPENSTACK_RELEASE.vmlinuz)"
 
 echo "Pulling ramdisk image from $file_base."
-DEPLOY_RAMDISK="$(os_image_create deploy_ramdisk coreos_production_pxe_image-oem-stable-$OPENSTACK_RELEASE.cpio.gz)"
+export DEPLOY_RAMDISK="$(os_image_create deploy_ramdisk coreos_production_pxe_image-oem-stable-$OPENSTACK_RELEASE.cpio.gz)"
 
 echo
