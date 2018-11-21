@@ -42,8 +42,8 @@ update_node() {
   cmd_args+=(--property local_gb=200)
 
   node_uuid="$(openstack baremetal node show "$node" -f value -c uuid)" \
-    && openstack baremetal node set "$node_uuid" -f value -c uuid "${cmd_args[@]}" \
-    || openstack baremetal node create -f value -c uuid "${cmd_args[@]}"
+    && { openstack baremetal node set "$node_uuid" "${cmd_args[@]}" >/dev/null && echo "$node_uuid" } \
+    ||   openstack baremetal node create -f value -c uuid "${cmd_args[@]}"
 }
 
 create_node_port() {
