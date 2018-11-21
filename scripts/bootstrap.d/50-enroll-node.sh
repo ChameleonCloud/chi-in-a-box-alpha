@@ -1,9 +1,9 @@
-echo "################################"
-echo " Node enrollment"
-echo "################################"
-echo
-echo "Looking for nodes in $NODE_CONF."
-echo
+log "################################"
+log " Node enrollment"
+log "################################"
+log
+log "Looking for nodes in $NODE_CONF."
+log
 
 nodes="$(crudini --get "$NODE_CONF")"
 
@@ -12,7 +12,7 @@ node_config() {
   local key="$2"
   local default="${3:-}"
   crudini --get "$NODE_CONF" "$node" "$key" \
-    || test -n "$default" && echo "$default"
+    || (test -n "$default" && echo "$default")
 }
 
 update_node() {
@@ -42,8 +42,8 @@ update_node() {
   cmd_args+=(--property local_gb=200)
 
   node_uuid="$(openstack baremetal node show "$node" -f value -c uuid)" \
-    && { openstack baremetal node set "$node_uuid" "${cmd_args[@]}" >/dev/null && echo "$node_uuid" } \
-    ||   openstack baremetal node create -f value -c uuid "${cmd_args[@]}"
+    && (openstack baremetal node set "$node_uuid" "${cmd_args[@]}" >/dev/null && echo "$node_uuid") \
+    ||  openstack baremetal node create -f value -c uuid "${cmd_args[@]}"
 }
 
 create_node_port() {
@@ -59,21 +59,22 @@ create_node_port() {
 }
 
 for node in $nodes; do
-  echo "Enrolling node $node..."
+  log "Enrolling node $node..."
   node_uuid="$(update_node "$node")"
 
-  echo -e "\tPutting node in maintenance mode..."
+  log -e "\tPutting node in maintenance mode..."
   openstack baremetal node maintenance set "$node_uuid"
 
-  echo -e "\tCreating network port..."
+  log -e "\tCreating network port..."
   port_uuid="$(create_node_port "$node" "$node_uuid")"
 
-  echo -e "\tEnabling SOL console redirection..."
+  log -e "\tEnabling SOL console redirection..."
   openstack baremetal node console enable "$node_uuid"
 
-  echo -e "\tBringing node out of maintenance mode..."
+  log -e "\tBringing node out of maintenance mode..."
   openstack baremetal node maintenance unset "$node_uuid"
   openstack baremetal node manage "$node_uuid"
+  openstack baremetal node provide "$node_uuid"
 
-  echo -e "\tDone."
+  log -e "\tDone."
 done
