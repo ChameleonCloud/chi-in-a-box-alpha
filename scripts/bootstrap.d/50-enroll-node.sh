@@ -72,7 +72,7 @@ create_blazar_host() {
 
 log "Ensuring baremetal flavor exists..."
 openstack flavor show baremetal 2>/dev/null \
-  || openstack flavor create --public --ram 0 --vcpus 0 --disk 1 baremetal >/dev/null
+  || openstack flavor create --public --ram 1 --vcpus 1 --disk 1 baremetal >/dev/null
 
 log "Ensuring freepool aggregate exists..."
 openstack aggregate show freepool 2>/dev/null \
