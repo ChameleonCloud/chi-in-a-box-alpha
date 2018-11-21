@@ -10,33 +10,40 @@ nodes="$(crudini --get "$NODE_CONF")"
 node_config() {
   local node="$1"
   local key="$2"
-  crudini --get "$NODE_CONF" "$node" "$key"
+  local default="${3:-}"
+  crudini --get "$NODE_CONF" "$node" "$key" \
+    || test -n "$default" && echo "$default"
 }
 
-create_node() {
+update_node() {
   local node="$1"
 
   local ipmi_username="$(node_config "$node" "ipmi_username")"
   local ipmi_password="$(node_config "$node" "ipmi_password")"
   local ipmi_address="$(node_config "$node" "ipmi_address")"
+  local ipmi_port="$(node_config "$node" "ipmi_port" 623)"
   local ipmi_terminal_port="$(node_config "$node" "ipmi_terminal_port")"
 
-  openstack baremetal node show "$node" -f value -c uuid \
-    || openstack baremetal node create -f value -c uuid \
-        --name "$node" \
-        --driver pxe_ipmitool_socat \
-        --driver-info "ipmi_username=$ipmi_username" \
-        --driver-info "ipmi_password=$ipmi_password" \
-        --driver-info "ipmi_address=$ipmi_address" \
-        --driver-info "ipmi_terminal_port=$ipmi_terminal_port" \
-        --driver-info "deploy_kernel=$DEPLOY_KERNEL" \
-        --driver-info "deploy_ramdisk=$DEPLOY_RAMDISK" \
-        --network-interface neutron \
-        --property capabilities="boot_option:local" \
-        --property cpus=48 \
-        --property cpu_arch=x86_64 \
-        --property memory_mb=128000 \
-        --property local_gb=200
+  declare -a cmd_args=()
+  cmd_args+=(--name "$node")
+  cmd_args+=(--driver pxe_ipmitool_socat)
+  cmd_args+=(--driver-info "ipmi_username=$ipmi_username")
+  cmd_args+=(--driver-info "ipmi_password=$ipmi_password")
+  cmd_args+=(--driver-info "ipmi_address=$ipmi_address")
+  cmd_args+=(--driver-info "ipmi_port=$ipmi_port")
+  cmd_args+=(--driver-info "ipmi_terminal_port=$ipmi_terminal_port")
+  cmd_args+=(--driver-info "deploy_kernel=$DEPLOY_KERNEL")
+  cmd_args+=(--driver-info "deploy_ramdisk=$DEPLOY_RAMDISK")
+  cmd_args+=(--network-interface neutron)
+  cmd_args+=(--property capabilities="boot_option:local")
+  cmd_args+=(--property cpus=48)
+  cmd_args+=(--property cpu_arch=x86_64)
+  cmd_args+=(--property memory_mb=128000)
+  cmd_args+=(--property local_gb=200)
+
+  node_uuid="$(openstack baremetal node show "$node" -f value -c uuid)" \
+    && openstack baremetal node set "$node_uuid" -f value -c uuid "${cmd_args[@]}" \
+    || openstack baremetal node create -f value -c uuid "${cmd_args[@]}"
 }
 
 create_node_port() {
@@ -53,7 +60,7 @@ create_node_port() {
 
 for node in $nodes; do
   echo "Enrolling node $node..."
-  node_uuid="$(create_node "$node")"
+  node_uuid="$(update_node "$node")"
 
   echo -e "\tPutting node in maintenance mode..."
   openstack baremetal node maintenance set "$node_uuid"
@@ -66,7 +73,7 @@ for node in $nodes; do
 
   echo -e "\tBringing node out of maintenance mode..."
   openstack baremetal node maintenance unset "$node_uuid"
-  openstack baremetal node provide
+  openstack baremetal node manage "$node_uuid"
 
   echo -e "\tDone."
 done
