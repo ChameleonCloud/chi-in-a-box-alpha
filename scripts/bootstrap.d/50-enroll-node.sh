@@ -103,4 +103,8 @@ for node in $nodes; do
   log -e "\tDone."
 done
 
+log "Discovering hosts..."
+nova-manage cell_v2 discover_hosts
+
+log "Done."
 log
