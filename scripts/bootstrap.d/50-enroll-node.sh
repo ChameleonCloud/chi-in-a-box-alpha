@@ -64,10 +64,11 @@ create_blazar_host() {
 
   local node_type="$(node_config "$node" "node_type" "default")"
 
-  blazar host-create \
-    --extra "node_type=$node_type" \
-    --extra "uid=$node_uuid" \
-    "$node_uuid" >/dev/null
+  blazar host-show "$node_uuid" \
+    || blazar host-create \
+        --extra "node_type=$node_type" \
+        --extra "uid=$node_uuid" \
+        "$node_uuid" >/dev/null
 }
 
 log "Ensuring baremetal flavor exists..."
