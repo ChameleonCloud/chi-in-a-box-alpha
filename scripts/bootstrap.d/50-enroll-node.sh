@@ -70,8 +70,13 @@ create_blazar_host() {
     "$node_uuid" >/dev/null
 }
 
+log "Ensuring baremetal flavor exists..."
+openstack flavor show baremetal 2>/dev/null \
+  || openstack flavor create --public --ram 0 --vcpus 0 --disk 1 baremetal >/dev/null
+
 log "Ensuring freepool aggregate exists..."
-openstack aggregate show freepool 2>/dev/null || openstack aggregate create freepool >/dev/null
+openstack aggregate show freepool 2>/dev/null \
+  || openstack aggregate create freepool >/dev/null
 
 for node in $nodes; do
   log "Enrolling node $node..."
