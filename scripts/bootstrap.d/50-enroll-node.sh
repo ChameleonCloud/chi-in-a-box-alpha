@@ -70,6 +70,9 @@ create_blazar_host() {
     "$node_uuid" >/dev/null
 }
 
+log "Ensuring freepool aggregate exists..."
+openstack aggregate show freepool 2>/dev/null || openstack aggregate create freepool >/dev/null
+
 for node in $nodes; do
   log "Enrolling node $node..."
   node_uuid="$(update_node "$node")"
