@@ -232,6 +232,11 @@ node default {
         rabbit_user                  => $rabbit_user,
         rabbit_password              => $rabbit_password,
     }
+    chameleoncloud::service_proxy { 'neutron_public':
+        public_ip  => $public_ip,
+        service_ip => $controller,
+        port       => '9696',
+    }
 
     neutron_network { 'public':
         ensure                    => present,
@@ -252,10 +257,28 @@ node default {
         enable_dhcp      => false,
         tenant_name      => 'openstack',
     }
-    chameleoncloud::service_proxy { 'neutron_public':
-        public_ip  => $public_ip,
-        service_ip => $controller,
-        port       => '9696',
+
+    $tenant_network_private_ip_subnet = '10.140.80.0/22'
+    $tenant_network_private_ip_range = cidr_to_ipv4_range($tenant_network_private_ip_subnet)
+
+    neutron_network { 'sharednet1':
+        ensure                    => present,
+        router_external           => false,
+        provider_network_type     => 'vlan',
+        provider_physical_network => 'physnet1',
+        provider_segmentation_id  => $ironic_provisioning_vlan + 1,
+        shared                    => true,
+        tenant_name               => 'openstack',
+    }
+    neutron_subnet { 'sharednet1-subnet':
+        ensure           => present,
+        network_name     => 'sharednet1',
+        cidr             => $tenant_network_private_ip_subnet,
+        ip_version       => '4',
+        gateway_ip       => $tenant_network_private_ip_range[-2],
+        allocation_pools => "start=${tenant_network_private_ip_range[1]},end=${tenant_network_private_ip_range[-3]}",
+        enable_dhcp      => true,
+        tenant_name      => 'openstack',
     }
 
     #
