@@ -64,7 +64,7 @@ create_blazar_host() {
 
   local node_type="$(node_config "$node" "node_type" "default")"
 
-  blazar host-create -f value -c \
+  blazar host-create \
     --extra "node_type=$node_type" \
     --extra "uid=$node_uuid" \
     "$node_uuid" >/dev/null
