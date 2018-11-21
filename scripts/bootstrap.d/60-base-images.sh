@@ -18,3 +18,6 @@ for image in CC-CentOS7; do
     openstack image create --file "$file" --disk-format "qcow2" --public "$image"
   fi
 done
+
+log "Done."
+log

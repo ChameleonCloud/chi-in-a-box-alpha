@@ -58,6 +58,18 @@ create_node_port() {
         "$mac_address"
 }
 
+create_blazar_host() {
+  local node="$1"
+  local node_uuid="$2"
+
+  local node_type="$(node_config "$node" "node_type" "default")"
+
+  blazar host-create -f value -c \
+    --extra "node_type=$node_type" \
+    --extra "uid=$node_uuid" \
+    "$node_uuid" >/dev/null
+}
+
 for node in $nodes; do
   log "Enrolling node $node..."
   node_uuid="$(update_node "$node")"
@@ -76,5 +88,10 @@ for node in $nodes; do
   openstack baremetal node manage "$node_uuid"
   openstack baremetal node provide "$node_uuid"
 
+  log -e "\tMaking node reservable..."
+  create_blazar_host "$node" "$node_uuid"
+
   log -e "\tDone."
 done
+
+log
