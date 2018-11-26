@@ -65,6 +65,8 @@ node default {
         if $private_ip =~ Stdlib::IP::Address::V4::Nosubnet {
             # Internal interface (OpenStack services)
             network::interface { $private_interface:
+		ipaddress => $private_ip,
+                netmask   => cidr_to_ipv4_netmask($private_subnet),
                 enable  => true,
                 mtu     => '1500',
                 hotplug => 'yes',
@@ -74,6 +76,9 @@ node default {
         if $public_ip =~ Stdlib::IP::Address::V4::Nosubnet {
             # Public Interface (API / Horizon)
             network::interface { $public_interface:
+		ipaddress => $public_ip,
+                netmask   => cidr_to_ipv4_netmask($public_subnet),
+		gateway   => $public_gateway,
                 enable   => true,
                 mtu      => '1500',
                 defroute => 'yes',
@@ -141,6 +146,7 @@ node default {
         keystone_dbpass                  => $keystone_dbpass,
         keystone_auth_email              => $email,
         keystone_host                    => $controller,
+        region                           => $region,
         public_endpoint                  => $keystone_public_endpoint,
         admin_endpoint                   => $keystone_admin_endpoint,
         instance_metrics_writer_username => $instance_metrics_writer_username,
@@ -223,7 +229,7 @@ node default {
         db_server                    => $db_server,
         metadata_proxy_shared_secret => $metadata_proxy_shared_secret,
         bridge_uplinks               => ["br-${neutron_private_interface}:${neutron_private_interface}", "br-ex:${neutron_public_interface}"],
-        bridge_mappings              => ["physnet1:${neutron_private_interface}", 'public:br-ex'],
+        bridge_mappings              => ["physnet1:br-${neutron_private_interface}", 'public:br-ex'],
         network_vlan_ranges          => "physnet1:${tenant_network_vlan_range}",
         nova_pass                    => $nova_pass,
         keystone_auth_uri            => $keystone_public_endpoint,
