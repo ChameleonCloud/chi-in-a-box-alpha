@@ -52,7 +52,11 @@ create_node_port() {
 
   local mac_address="$(node_config "$node" "mac_address")"
 
-  openstack baremetal port list --node "$node_uuid" -f value -c UUID \
+  # This command will exit 0 even if there is no port found, need to check
+  # actual output returned.
+  port_uuid="$(openstack baremetal port list --node "$node_uuid" -f value -c UUID)"
+
+  test -n "$port_uuid" && echo "$port_uuid" \
     || openstack baremetal port create -f value -c UUID \
         --node "$node_uuid" \
         "$mac_address"
