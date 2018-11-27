@@ -52,7 +52,7 @@ create_node_port() {
 
   local mac_address="$(node_config "$node" "mac_address")"
   local switch_name="$(node_config "$node" "switch_name")"
-  local port_id="$(node_config "$node" "port_id")"
+  local switch_port_id="$(node_config "$node" "switch_port_id")"
 
   # This command will exit 0 even if there is no port found, need to check
   # actual output returned.
@@ -65,7 +65,7 @@ create_node_port() {
         --node "$node_uuid" \
         --local-link-connection switch_info="$switch_name" \
         --local-link-connection switch_id="00:00:00:00:00:00" \
-        --local-link-connection port_id="$port_id" \
+        --local-link-connection port_id="$switch_port_id" \
         "$mac_address" >/dev/null \
         && openstack baremetal port list --node "$node_uuid" -f value -c UUID)
 }
