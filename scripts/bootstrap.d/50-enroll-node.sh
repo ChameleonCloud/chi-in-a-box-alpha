@@ -56,10 +56,13 @@ create_node_port() {
   # actual output returned.
   port_uuid="$(openstack baremetal port list --node "$node_uuid" -f value -c UUID)"
 
+  # The create command does not properly return the UUID value, need to
+  # create and then re-check.
   test -n "$port_uuid" && echo "$port_uuid" \
-    || openstack baremetal port create -f value -c UUID \
+    || (openstack baremetal port create \
         --node "$node_uuid" \
-        "$mac_address"
+        "$mac_address" >/dev/null \
+        && openstack baremetal port list --node "$node_uuid" -f value -c UUID)
 }
 
 create_blazar_host() {
