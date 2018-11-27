@@ -84,8 +84,12 @@ create_blazar_host() {
 }
 
 log "Ensuring baremetal flavor exists..."
+greatest_common_min_disk_size=20
 openstack flavor show baremetal 2>/dev/null \
-  || openstack flavor create --public --ram 1 --vcpus 1 --disk 1 baremetal >/dev/null
+  || openstack flavor create \
+      --public --ram 1 --vcpus 1 \
+      --disk "$greatest_common_min_disk_size" \
+      baremetal >/dev/null
 
 log "Ensuring freepool aggregate exists..."
 openstack aggregate show freepool 2>/dev/null \
