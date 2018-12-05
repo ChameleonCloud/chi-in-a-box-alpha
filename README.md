@@ -128,4 +128,4 @@ This bootstrap script is designed to be run multiple times in case you encounter
 
 ### Troubleshooting
 
-Please see the [troubleshooting guide](./TROUBLESHOOTING.md) for remedies to problems that have been seen in practice.
+Please see the [troubleshooting guide](./TROUBLESHOOTING.md) for remedies to problems that have been seen in practice. It is also helpful to read about [Ironic provisioning](https://docs.openstack.org/ironic/pike/user/) so you can diagnose which step may be failing for your setup.
