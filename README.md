@@ -46,25 +46,28 @@ The following steps assume an installation on a clean CentOS 7 machine, preferab
 
 1. Install puppet and r10k:
 
-    yum install epel-release -y
-    yum install centos-release-openstack-ocata.noarch -y
-    yum install crudini git puppet puppet-server -y
-    yum update selinux-* nss curl libcurl -y
-    systemctl enable puppetmaster
-    systemctl start puppetmaster
-    gem install --no-rdoc --no-ri r10k -v 2.6.4
+  ```shell
+  yum install epel-release -y
+  yum install centos-release-openstack-ocata.noarch -y
+  yum install crudini git puppet puppet-server -y
+  yum update selinux-* nss curl libcurl -y
+  systemctl enable puppetmaster
+  systemctl start puppetmaster
+  gem install --no-rdoc --no-ri r10k -v 2.6.4
+  ```
 
 2. Determine your private ip address and fqdn:
 
-    $ facter ipaddress
-    10.0.1.11
-
-    $ facter fqdn
-    host01.novalocal
+  ```shell
+  PRIVATE_IP=$(facter ipaddress)
+  FQDN=$(facter fqdn)
+  ```
 
 3. Add your private ip to `/etc/hosts` with the alias 'puppet'. One way to do this is:
 
-    echo "$(facter ipaddress) puppet" >> /etc/hosts
+  ```shell
+  echo "$(facter ipaddress) puppet" >> /etc/hosts
+  ```
 
 4. Copy `manifest/settings.pp.example` to `manifests/settings.pp`. At minimum you'll need to specify the public and private network subnets for your controller node.
 
@@ -72,34 +75,42 @@ The following steps assume an installation on a clean CentOS 7 machine, preferab
 
 6. Use r10k to download puppet modules:
 
-    r10k puppetfile install --puppetfile Puppetfile -v info
+  ```shell
+  r10k puppetfile install --puppetfile Puppetfile -v info
+  ```
 
 7. Run puppet agent via the `./puppet` wrapper script to install and configure the infrastructure pieces:
 
-    ./puppet agent --test
+  ```shell
+  ./puppet agent --test
+  ```
 
 ### Node enrollment
 
 To enroll your nodes, we have provided a bootstrap script you can run against a configuration of nodes. To use this, first prepare some information about your nodes. You will need to pick a name for the node, know its (existing) IPMI address on the network (and be able to connect to this from the controller node already), its (existing) IPMI password, the MAC address for its NIC, the name of the switch it is connected to (which you have defined in `$neutron_ngs_switches` in your `settings.pp` file), and which switch port it is connected to. An example is:
 
-  [node01]
-  ipmi_username = root
-  ipmi_password = hopefully_not_default
-  ipmi_address = 10.10.10.1
-  ipmi_port = 623 # Optional, defaults to this value.
-  # Arbitrary terminal port; this is used to plumb a socat process to allow
-  # reading and writing to a virtual console. It is just important that it does
-  # not conflict with another node or host process.
-  ipmi_terminal_port = 30133
-  switch_name = LeafSwitch01
-  switch_port_id = Te 1/10/1
-  mac_address = 00:00:de:ad:be:ef
+```
+[node01]
+ipmi_username = root
+ipmi_password = hopefully_not_default
+ipmi_address = 10.10.10.1
+ipmi_port = 623 # Optional, defaults to this value.
+# Arbitrary terminal port; this is used to plumb a socat process to allow
+# reading and writing to a virtual console. It is just important that it does
+# not conflict with another node or host process.
+ipmi_terminal_port = 30133
+switch_name = LeafSwitch01
+switch_port_id = Te 1/10/1
+mac_address = 00:00:de:ad:be:ef
 
-  # .. repeat for more nodes.
+# .. repeat for more nodes.
+```
 
 Once you have this file (let's call it `nodes.conf`), you can kick off the bootstrap script:
 
-  ./scripts/bootstrap.sh nodes.conf
+```shell
+./scripts/bootstrap.sh nodes.conf
+```
 
 This script will do many things, namely:
 
