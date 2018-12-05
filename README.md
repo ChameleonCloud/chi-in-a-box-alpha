@@ -2,6 +2,7 @@
 
 ---
 :warning: **Disclaimer**: CHI-in-a-box is currently in **Early Provider Alpha** for both the **Chameleon Associate** and **Independent Testbed** use-cases. This alpha version supports only a partial set of functionality that we expect to make available eventually. If you would like to explore becoming an alpha Chameleon Associate site, please contact us at contact@chameleoncloud.org. :warning:
+
 ---
 
 ## What is this?
