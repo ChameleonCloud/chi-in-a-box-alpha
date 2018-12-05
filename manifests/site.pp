@@ -50,53 +50,15 @@ node default {
           owner  => 'root',
           group  => 'root',
       }
-    }
 
-    class { 'ca_cert':
-        install_package => true
-    }
+      class { 'ca_cert':
+          install_package => true
+      }
 
-    ca_cert::ca { "${fqdn}-Intermediate":
-        ensure => 'trusted',
-        source => "file://${ssl_ca}",
-    }
-
-    if $manage_interfaces {
-        if $private_ip =~ Stdlib::IP::Address::V4::Nosubnet {
-            # Internal interface (OpenStack services)
-            network::interface { $private_interface:
-		ipaddress => $private_ip,
-                netmask   => cidr_to_ipv4_netmask($private_subnet),
-                enable  => true,
-                mtu     => '1500',
-                hotplug => 'yes',
-            }
-        }
-
-        if $public_ip =~ Stdlib::IP::Address::V4::Nosubnet {
-            # Public Interface (API / Horizon)
-            network::interface { $public_interface:
-		ipaddress => $public_ip,
-                netmask   => cidr_to_ipv4_netmask($public_subnet),
-		gateway   => $public_gateway,
-                enable   => true,
-                mtu      => '1500',
-                defroute => 'yes',
-                peerdns  => 'yes',
-                dns1     => $dns_servers[0],
-                dns2     => $dns_servers[1],
-            }
-        }
-
-        if $oob_ip =~ Stdlib::IP::Address::V4::Nosubnet {
-            # Out of Band
-            network::interface { $oob_interface:
-                enable    => true,
-                ipaddress => $oob_ip,
-                netmask   => cidr_to_ipv4_netmask($oob_subnet),
-                mtu       => '1500',
-            }
-        }
+      ca_cert::ca { "${fqdn}-Intermediate":
+          ensure => 'trusted',
+          source => "file://${ssl_ca}",
+      }
     }
 
     # Create admin adminrc in /root
@@ -229,7 +191,10 @@ node default {
         region                       => $region,
         db_server                    => $db_server,
         metadata_proxy_shared_secret => $metadata_proxy_shared_secret,
-        bridge_uplinks               => ["br-${neutron_private_interface}:${neutron_private_interface}", "br-ex:${neutron_public_interface}"],
+        bridge_uplinks               => [
+                                          "br-${neutron_private_interface}:${neutron_private_interface}",
+                                          "br-ex:${neutron_public_interface}"
+                                        ],
         bridge_mappings              => ["physnet1:br-${neutron_private_interface}", 'public:br-ex'],
         network_vlan_ranges          => "physnet1:${tenant_network_vlan_range}",
         nova_pass                    => $nova_pass,
@@ -325,7 +290,7 @@ node default {
         keystone_auth_uri               => $keystone_public_endpoint,
         keystone_auth_url               => $keystone_admin_endpoint,
         db_server                       => $controller,
-	region                          => $region,
+        region                          => $region,
         ironic_provision_subnet_gateway => $ironic_provisioning_gateway_ip,
         ironic_cleaning_network         => 'ironic-provisioning-network',
         ironic_provisioning_network     => 'ironic-provisioning-network',
@@ -365,7 +330,7 @@ node default {
         public_endpoint_ip           => $public_ip,
         neutron_password             => $neutron_pass,
         metadata_proxy_shared_secret => $metadata_proxy_shared_secret,
-	region                       => $region,
+        region                       => $region,
         glance_host                  => $controller,
         db_server                    => $db_server,
         rabbit_password              => $rabbit_password,

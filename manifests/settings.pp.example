@@ -1,32 +1,17 @@
-################
-# User settings
-################
-
-$email = ''
-
-# Whether to instruct Puppet to manage the network interfaces.
-# If true, Puppet will create network scripts for each of the 3 interfaces
-# defined below (internal, external, out-of-band.)
-$manage_interfaces = false
+###################
+# Network settings
+###################
 
 # IPv4 address on internal network
-$private_ip = ''
-# Internal interface details; only used when `manage_interfaces` is true
+$private_ip = '10.140.0.1'
 $private_interface = 'eno1'
-$private_subnet = ''
+$private_subnet = '10.140.0.0/24'
 
 # IPv4 address on external network
 $public_ip  = ''
-# External interface details; only used when `manage_interfaces` is true
 $public_interface = 'eno2'
 $public_subnet = ''
 $public_gateway = ''
-
-# IPv4 address on out-of-band network
-$oob_ip = ''
-# Out-of-band interface details; only used when `manage_interfaces` is true
-$oob_interface = 'eno3'
-$oob_subnet = ''
 
 # Neutron private interface details - this is the interface that will be used
 # for all internal tenant network routing.
@@ -48,34 +33,39 @@ $tenant_network_public_ip_subnet = ''
 # (Defaults to Google DNS)
 $dns_servers = ['8.8.8.8', '8.8.4.4']
 
-$neutron_ngs_switches = {
-  'genericswitch:switch1' => {
-    'device_type' => 'netmiko_dell_force10',
-    'ip'          => '',
-    'username'    => '',
-    'password'    => '',
-  },
-  'genericswitch:switch2' => {
-    'device_type' => 'netmiko_dell_force10',
-    'ip'          => '',
-    'username'    => '',
-    'password'    => '',
-  }
-}
-
-$region = 'CIAB' # Region name
-
-# SSL certificate loading
+# Neutron generic switch configurations. The keys for this dictionary are
+# the switch names, and the switch names are used when creating Ironic ports
+# (using the local_link_connection 'switch_info' parameter.) They can be
+# any value; they just have to match up with the Ironic ports.
 #
-# Whether to user LetsEncrypt certificates - if true, certificates will be
-# automatically loaded from the default certbot directory of /etc/letsencrypt/live/${fqdn}
-$ssl_letsencrypt = false
+# Example:
+#
+#   $neutron_ngs_switches = {
+#     'genericswitch:switch1' => {
+#     'device_type' => 'netmiko_dell_force10',
+#     'ip'          => '10.0.0.1',
+#     'username'    => 'username',
+#     'password'    => 'itsasecret',
+#     },
+#   }
+#
+$neutron_ngs_switches = {}
 
-# Note: if you are providing your own certificates, they are expected to be in
+# Region name
+$region = 'CIAB'
+
+# SSL can use LetsEncrypt certificates - if true, certificates will be
+# automatically loaded from the default certbot directory of /etc/letsencrypt/live/${fqdn}
+# If you are providing your own certificates, they are expected to be in
 # /root at the following locations:
 #   - Certificate: "${fqdn}.cer"
 #   - Private key: "${fqdn}.key"
 #   - Intermediate certificate: "${fqdn}-interm.cer"
+$ssl_letsencrypt = false
+
+# Contact email for the admin user; this isn't really used for anything
+# important at the moment
+$email = ''
 
 ##################################################################
 # NOTE: it should not be necessary to modify anything below here!
