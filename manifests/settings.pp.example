@@ -15,18 +15,18 @@ $public_gateway = ''
 
 # Neutron private interface details - this is the interface that will be used
 # for all internal tenant network routing.
-$neutron_private_interface = 'eno1'
+$neutron_private_interface = $private_interface
 
 # Neutron public interface details - this is the interface that will be used for
 # inbound traffic to tenant floating IPs.
-$neutron_public_interface = 'eno2'
+$neutron_public_interface = $public_interface
 
 # VLAN id for provisioning network
 $ironic_provisioning_vlan = '400'
 # VLAN range for all neutron networks - must include provisioning VLAN
 $tenant_network_vlan_range = "${ironic_provisioning_vlan}:410"
 # IPv4 CIDR for subnet that will be used for public IP allocation
-$tenant_network_public_ip_subnet = ''
+$tenant_network_public_ip_subnet = $public_subnet
 
 # DNS servers to use for default DNS resolution on all nodes and Neutron subnets.
 # You must define 2 or some Puppet recipes will not evaluate.

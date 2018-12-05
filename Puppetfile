@@ -96,6 +96,7 @@ mod 'oslo',
 mod 'blazar',
     :git => 'https://github.com/ChameleonCloud/puppet-blazar.git'
 
+# This is a private GitHub repository - you must request access
 mod 'chameleoncloud',
     :git => 'git@github.com:ChameleonCloud/puppet-chameleoncloud.git',
     :branch => 'ciab'
