@@ -1,6 +1,7 @@
 ---
-- hosts: 127.0.0.1
+- hosts: localhost
   connection: local
+  gather_facts: no
 
   tasks:
     - template:
@@ -8,14 +9,18 @@
         dest: globals.yml
         mode: '0600'
     - debug:
-        msg: ""
+        msg: |
+          A new globals file has been outputted to this directory. Please have
+          a look and fill in any settings specific to your deployment.
 
   vars_prompt:
     - name: ciab_admin_email
+      private: no
       prompt: |
         Please enter a contact email for an administrator.
         This will be used as the email address for the OpenStack admin user.
     - name: ciab_region_name
+      private: no
       default: CIAB
       prompt: |
         Please enter a name for the site deployment. For associate sites, a
