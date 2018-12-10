@@ -5,7 +5,7 @@ globals="globals.yml"
 type -f "$globals" || {
   echo "No global settings found in ./$globals - creating a new globals file..."
   venv/bin/ansible-playbook step-1-preinstall.yml
-  type -f "$globals"
+  exit 0
 }
 
 venv/bin/ansible-playbook step-2-install.yml --extra-vars "@$globals"

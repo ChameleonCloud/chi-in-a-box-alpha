@@ -1,4 +1,37 @@
 ---
-- gem:
+- name: Install Puppet server and agent.
+  package:
+    name: "{{ item }}"
+    loop:
+      - "puppet-server"
+      - "puppet"
+
+- name: Install r10k gem and dependencies.
+  gem:
     name: r10k
     state: present
+
+- name: Create Puppet environment directory.
+  file:
+    name: "{{ puppetmaster_environment }}"
+    state: directory
+
+- name: Copy Puppetfile and manifests.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ puppetmaster_environment }}/{{ item }}"
+  loop:
+    - lib
+    - manifests
+    - Puppetfile
+
+- name: Install Puppet modules.
+  command: r10k install
+  args:
+    chdir: "{{ puppetmaster_environment }}"
+
+- name: Copy site-specific settings.
+  template:
+    src: 01-settings.pp.j2
+    dest: "{{ puppetmaster_environment }}/manifests/01-settings.pp"
+    mode: "0600"

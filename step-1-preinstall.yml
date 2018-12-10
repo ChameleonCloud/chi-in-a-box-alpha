@@ -9,9 +9,9 @@
         dest: globals.yml
         mode: '0600'
     - debug:
-        msg: |
-          A new globals file has been outputted to this directory. Please have
-          a look and fill in any settings specific to your deployment.
+        msg:
+          - "A new globals file has been outputted to this directory."
+          - "Please have a look and fill in any settings specific to your deployment."
 
   vars_prompt:
     - name: ciab_admin_email

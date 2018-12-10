@@ -1,0 +1,2 @@
+---
+puppetmaster_environment: /etc/puppet/environments/chi-in-a-box
