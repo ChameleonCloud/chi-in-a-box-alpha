@@ -1,0 +1,24 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+
+  tasks:
+    - template:
+        src: globals.yml.j2
+        dest: globals.yml
+        mode: '0600'
+    - debug:
+        msg: ""
+
+  vars_prompt:
+    - name: ciab_admin_email
+      prompt: |
+        Please enter a contact email for an administrator.
+        This will be used as the email address for the OpenStack admin user.
+    - name: ciab_region_name
+      default: CIAB
+      prompt: |
+        Please enter a name for the site deployment. For associate sites, a
+        good convention to follow is "CHI@" followed by an abbreviation of
+        the hosting institution or organization. For example, University of
+        Chicago's site name is "CHI@UC"

@@ -1,0 +1,16 @@
+---
+# Install Puppet agent
+
+# Run puppet
+
+- import_tasks: ironic.yml
+  tags:
+    - ironic
+
+- import_tasks: neutron.yml
+  tags:
+    - neutron
+
+- import_tasks: nova.yml
+  tags:
+    - nova

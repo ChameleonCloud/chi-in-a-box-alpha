@@ -1,0 +1,4 @@
+---
+- gem:
+    name: r10k
+    state: present

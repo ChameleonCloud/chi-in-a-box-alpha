@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# Copy relevant files to environment directory
-prod="/etc/puppet/environments/production"
-mkdir -p $prod
-rsync -avx lib manifests $prod
-
-puppet "$@"

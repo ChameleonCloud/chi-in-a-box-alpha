@@ -1,3 +1,29 @@
+#
+# Default settings
+#
+
+$controller = $private_ip
+$public_endpoint_url = $fqdn
+
+$db_allowed_hosts = $controller
+$db_hammers_user = 'cc_hammers'
+$db_readonly_user = 'readonly'
+$db_server = $controller
+$instance_metrics_writer_username = 'instance_metrics_writer'
+$keystone_admin_endpoint  = "https://${public_endpoint_url}:35357"
+$keystone_public_endpoint = "https://${public_endpoint_url}:5000"
+$memcache_servers = "${controller}:11211"
+$rabbit_user = 'openstack'
+
+$regions = [
+  {
+    'region_name' => $region,
+    'blazar_dbserver' => $db_server,
+    'blazar_dbpass' => $blazar_dbpass,
+    'site' => $fqdn
+  }
+]
+
 node default {
     $ssl_path_base = '/etc/pki/tls'
     $ssl_cert      = "${ssl_path_base}/certs/${fqdn}.cer"
@@ -107,7 +133,7 @@ node default {
         region_name => $region,
         auth_url    => $keystone_public_endpoint,
         # project_name => $admin_project_name,
-        tenant_name  => 'openstack',
+        tenant_name => 'openstack',
     }
 
     class { 'memcached':

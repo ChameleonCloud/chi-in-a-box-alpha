@@ -1,0 +1,96 @@
+---
+# Contact email for the admin user; this isn't really used for anything
+# important at the moment
+ciab_admin_email: '{{ ciab_admin_email }}'
+
+# Name of the CHI-in-a-box site deployment. Used to identify Keystone endpoints
+# and also to indicate which site a user is currenty logged in to in Horizon.
+ciab_region_name: '{{ ciab_region_name }}'
+
+# VLAN id for provisioning network
+ironic_provisioning_vlan: 400
+
+# VLAN range for all neutron networks - must include provisioning VLAN
+neutron_network_vlan_range: 400:410
+
+# IPv4 CIDR for subnet that will be used for public IP allocation
+# Defaults to value of `public_subnet`
+#neutron_network_public_subnet:
+
+# DNS servers to use for default DNS resolution on all nodes and Neutron subnets.
+# You must define 2 or some Puppet recipes will not evaluate.
+# (Defaults to Google DNS)
+neutron_dns_servers:
+  - '8.8.8.8'
+  - '8.8.4.4'
+
+# Neutron generic switch configurations. The keys for this dictionary are
+# the switch names, and the switch names are used when creating Ironic ports
+# (using the local_link_connection 'switch_info' parameter.) They can be
+# any value; they just have to match up with the Ironic ports.
+#
+# Example:
+#
+#   $neutron_ngs_switches = {
+#     'genericswitch:switch1' => {
+#     'device_type' => 'netmiko_dell_force10',
+#     'ip'          => '10.0.0.1',
+#     'username'    => 'username',
+#     'password'    => 'itsasecret',
+#     },
+#   }
+#
+neutron_ngs_switches:
+  - name: "genericswitch:switch1"
+    device_type: netmiko_dell_force10
+    ip:
+    username:
+    password:
+
+# Neutron private interface details - this is the interface that will be used
+# for all internal tenant network routing.
+# Defaults to value of `private_interface`
+#neutron_private_interface:
+
+# Neutron public interface details - this is the interface that will be used for
+# inbound traffic to tenant floating IPs.
+# Defaults to value of `public_interface`
+#neutron_public_interface:
+
+###################
+# Service accounts
+###################
+
+admin_password: "{{ lookup('password', '/dev/null') }}"
+admin_token: "{{ lookup('password', '/dev/null') }}"
+backup_password: "{{ lookup('password', '/dev/null') }}"
+blazar_dbpass: "{{ lookup('password', '/dev/null') }}"
+blazar_pass: "{{ lookup('password', '/dev/null') }}"
+ceilometer_dbpass: "{{ lookup('password', '/dev/null') }}"
+ceilometer_pass: "{{ lookup('password', '/dev/null') }}"
+cinder_dbpass: "{{ lookup('password', '/dev/null') }}"
+cinder_pass: "{{ lookup('password', '/dev/null') }}"
+db_hammers_pass: "{{ lookup('password', '/dev/null') }}"
+db_readonly_pass: "{{ lookup('password', '/dev/null') }}"
+glance_dbpass: "{{ lookup('password', '/dev/null') }}"
+glance_pass: "{{ lookup('password', '/dev/null') }}"
+gnocchi_dbpass: "{{ lookup('password', '/dev/null') }}"
+gnocchi_pass: "{{ lookup('password', '/dev/null') }}"
+heat_dbpass: "{{ lookup('password', '/dev/null') }}"
+heat_domain_admin_password: "{{ lookup('password', '/dev/null') }}"
+heat_pass: "{{ lookup('password', '/dev/null') }}"
+horizon_secret_key: "{{ lookup('password', '/dev/null') }}"
+instance_metrics_writer_password: "{{ lookup('password', '/dev/null') }}"
+ironic_dbpass: "{{ lookup('password', '/dev/null') }}"
+ironic_pass: "{{ lookup('password', '/dev/null') }}"
+keystone_dbpass: "{{ lookup('password', '/dev/null') }}"
+metadata_proxy_shared_secret: "{{ lookup('password', '/dev/null') }}"
+mysql_root: "{{ lookup('password', '/dev/null') }}"
+neutron_dbpass: "{{ lookup('password', '/dev/null') }}"
+neutron_pass: "{{ lookup('password', '/dev/null') }}"
+nova_dbpass: "{{ lookup('password', '/dev/null') }}"
+nova_pass: "{{ lookup('password', '/dev/null') }}"
+nova_placement_dbpass: "{{ lookup('password', '/dev/null') }}"
+nova_placement_pass: "{{ lookup('password', '/dev/null') }}"
+rabbit_password: "{{ lookup('password', '/dev/null') }}"
+swift_pass: "{{ lookup('password', '/dev/null') }}"

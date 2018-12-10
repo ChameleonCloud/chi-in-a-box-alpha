@@ -1,0 +1,84 @@
+###################
+# Basic settings
+###################
+
+$region = '{{ ciab_region_name }}'
+$email = '{{ ciab_admin_email }}'
+
+# SSL can use LetsEncrypt certificates - if true, certificates will be
+# automatically loaded from the default certbot directory of /etc/letsencrypt/live/${fqdn}
+# If you are providing your own certificates, they are expected to be in
+# /root at the following locations:
+#   - Certificate: "${fqdn}.cer"
+#   - Private key: "${fqdn}.key"
+#   - Intermediate certificate: "${fqdn}-interm.cer"
+$ssl_letsencrypt = false
+
+###################
+# Network settings
+###################
+
+$private_ip = '{{ private_ip }}'
+$private_interface = '{{ private_interface }}'
+$private_subnet = '{{ private_subnet }}'
+
+$public_ip  = '{{ public_ip }}'
+$public_interface = '{{ public_interface }}'
+$public_subnet = '{{ public_subnet }}'
+$public_gateway = '{{ public_gateway }}'
+
+$ironic_provisioning_vlan = '{{ ironic_provisioning_vlan }}'
+$tenant_network_vlan_range = '{{ neutron_network_vlan_range }}'
+$tenant_network_public_ip_subnet = '{{ neutron_network_public_subnet | default(public_subnet) }}'
+
+$dns_servers = {{ neutron_dns_servers | to_json }}
+$neutron_private_interface = '{{ neutron_private_interface | default(private_interface) }}'
+$neutron_public_interface = '{{ neutron_public_interface | default(public_interface) }}'
+$neutron_ngs_switches = {
+{% for switch in neutron_ngs_switches %}
+  '{{ switch.name }}' => {
+    'device_type' => '{{ switch.type }}',
+    'ip'          => '{{ switch.ip }}',
+    'username'    => '{{ switch.username }}',
+    'password'    => '{{ switch.password }}',
+  },
+{% endfor %}
+}
+
+###################
+# Service accounts
+###################
+
+$admin_password = '{{ admin_password }}'
+$admin_token = '{{ admin_token }}'
+$backup_password = '{{ backup_password }}'
+$blazar_dbpass = '{{ blazar_dbpass }}'
+$blazar_pass = '{{ blazar_pass }}'
+$ceilometer_dbpass = '{{ ceilometer_dbpass }}'
+$ceilometer_pass = '{{ ceilometer_pass }}'
+$cinder_dbpass = '{{ cinder_dbpass }}'
+$cinder_pass = '{{ cinder_pass }}'
+$db_hammers_pass = '{{ db_hammers_pass }}'
+$db_readonly_pass = '{{ db_readonly_pass }}'
+$glance_dbpass = '{{ glance_dbpass }}'
+$glance_pass = '{{ glance_pass }}'
+$gnocchi_dbpass = '{{ gnocchi_dbpass }}'
+$gnocchi_pass = '{{ gnocchi_pass }}'
+$heat_dbpass = '{{ heat_dbpass }}'
+$heat_domain_admin_password = '{{ heat_domain_admin_password }}'
+$heat_pass = '{{ heat_pass }}'
+$horizon_secret_key = '{{ horizon_secret_key }}'
+$instance_metrics_writer_password = '{{ instance_metrics_writer_password }}'
+$ironic_dbpass = '{{ ironic_dbpass }}'
+$ironic_pass = '{{ ironic_pass }}'
+$keystone_dbpass = '{{ keystone_dbpass }}'
+$metadata_proxy_shared_secret = '{{ metadata_proxy_shared_secret }}'
+$mysql_root = '{{ mysql_root }}'
+$neutron_dbpass = '{{ neutron_dbpass }}'
+$neutron_pass = '{{ neutron_pass }}'
+$nova_dbpass = '{{ nova_dbpass }}'
+$nova_pass = '{{ nova_pass }}'
+$nova_placement_dbpass = '{{ nova_placement_dbpass }}'
+$nova_placement_pass = '{{ nova_placement_pass }}'
+$rabbit_password = '{{ rabbit_password }}'
+$swift_pass = '{{ swift_pass }}'
