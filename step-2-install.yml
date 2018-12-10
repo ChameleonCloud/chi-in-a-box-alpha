@@ -1,5 +1,8 @@
 ---
-- hosts: controller
+- hosts: puppetmaster
   roles:
     - puppetmaster
+
+- hosts: controller
+  roles:
     - controller

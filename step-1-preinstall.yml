@@ -5,9 +5,12 @@
 
   tasks:
     - template:
-        src: globals.yml.j2
+        src: templates/globals.yml.j2
         dest: globals.yml
         mode: '0600'
+    - template:
+        src: templates/hosts.j2
+        dest: hosts
     - debug:
         msg:
           - "A new globals file has been outputted to this directory."

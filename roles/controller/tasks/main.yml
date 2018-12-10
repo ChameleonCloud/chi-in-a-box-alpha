@@ -1,16 +1,21 @@
 ---
-# Install Puppet agent
+- name: Install Puppet agent.
+  package:
+    name: puppet
 
-# Run puppet
+# TODO: configure Puppet to point to controller.
 
 - import_tasks: ironic.yml
   tags:
+    - postinstall
     - ironic
 
 - import_tasks: neutron.yml
   tags:
+    - postinstall
     - neutron
 
 - import_tasks: nova.yml
   tags:
+    - postinstall
     - nova

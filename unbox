@@ -1,11 +1,48 @@
 #!/usr/bin/env bash
+set -e -u
 
+taskset="${1:-all}"
 globals="globals.yml"
 
-type -f "$globals" || {
-  echo "No global settings found in ./$globals - creating a new globals file..."
-  venv/bin/ansible-playbook step-1-preinstall.yml
-  exit 0
+preinstall() {
+  ansible-playbook step-1-preinstall.yml
 }
 
-venv/bin/ansible-playbook step-2-install.yml --extra-vars "@$globals"
+install() {
+  ansible-playbook step-2-install.yml \
+    --extra-vars "@$globals" \
+    --skip-tags "postinstall"
+}
+
+postinstall() {
+  ansible-playbook step-3-postinstall.yml \
+    --extra-vars "@$globals" \
+    --tags "postinstall"
+}
+
+case "$taskset" in
+  all)
+    test -f "$globals" || {
+      echo "No global settings found in ./$globals - creating a new globals file..."
+      preinstall
+      exit 0
+    }
+    install && postinstall
+    ;;
+  preinstall)
+    preinstall
+    ;;
+  install)
+    install
+    ;;
+  postinstall)
+    postinstall
+    ;;
+  *)
+    echo "Unknown taskset '$taskset'. Valid options are:"
+    echo "  - preinstall"
+    echo "  - install"
+    echo "  - postinstall"
+    exit 1
+    ;;
+esac

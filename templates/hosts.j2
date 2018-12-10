@@ -1,0 +1,12 @@
+# By default, CHI-in-a-box is installed to the same machine you are running
+# Ansible from. You can however install CHI-in-a-box on any remote machine
+# by overriding the default value of the "controller" group
+[controller]
+localhost ansible_connection=local
+
+# Currently, the deploy happens using some provisioning recipes written in
+# Puppet. To facilitate this, a puppet server is required. This can be the
+# same node as the controller, the same node as the one you run Ansible on,
+# both, or neither.
+[puppetmaster]
+localhost ansible_connection=local
