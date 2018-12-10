@@ -1,9 +1,7 @@
 ---
 - name: Install Puppet server.
   package:
-    name: "{{ item }}"
-    loop:
-      - "puppet-server"
+    name: puppet-server
 
 - name: Install r10k gem and dependencies.
   gem:
