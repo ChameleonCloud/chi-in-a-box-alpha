@@ -12,23 +12,33 @@
   file:
     name: "{{ puppetmaster_environment }}"
     state: directory
+    owner: "{{ puppetmaster_user }}"
 
-- name: Copy Puppetfile and manifests.
+- name: Copy environment manifests and helper libraries.
   copy:
-    src: "{{ item }}"
-    dest: "{{ puppetmaster_environment }}/{{ item }}"
+    src: "{{ item }}/"
+    dest: "{{ puppetmaster_environment }}/{{ item }}/"
+    owner: "{{ puppetmaster_user }}"
   loop:
     - lib
     - manifests
-    - Puppetfile
+
+- name: Copy Puppetfile.
+  copy:
+    src: Puppetfile
+    dest: "{{ puppetmaster_environment }}/Puppetfile"
+    owner: "{{ puppetmaster_user }}"
 
 - name: Install Puppet modules.
   command: r10k puppetfile install
   args:
     chdir: "{{ puppetmaster_environment }}"
+  become: "{{ puppetmaster_user }}"
+  become_user: yes
 
 - name: Copy site-specific settings.
   template:
     src: 01-settings.pp.j2
     dest: "{{ puppetmaster_environment }}/manifests/01-settings.pp"
     mode: "0600"
+    owner: "{{ puppetmaster_user }}"
