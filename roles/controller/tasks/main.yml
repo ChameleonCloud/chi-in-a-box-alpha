@@ -3,7 +3,10 @@
   package:
     name: puppet
 
-# TODO: configure Puppet to point to controller.
+- name: Run Puppet.
+  puppet:
+    environment: chi-in-a-box
+    puppetmaster: "{{ groups.puppetmaster[0] }}"
 
 - import_tasks: ironic.yml
   tags:
