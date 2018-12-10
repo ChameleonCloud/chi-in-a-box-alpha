@@ -1,17 +1,17 @@
 ---
 # Contact email for the admin user; this isn't really used for anything
 # important at the moment
-ciab_admin_email: '{{ ciab_admin_email }}'
+ciab_admin_email: "{{ ciab_admin_email }}"
 
 # Name of the CHI-in-a-box site deployment. Used to identify Keystone endpoints
 # and also to indicate which site a user is currenty logged in to in Horizon.
-ciab_region_name: '{{ ciab_region_name }}'
+ciab_region_name: "{{ ciab_region_name }}"
 
 # VLAN id for provisioning network
 ironic_provisioning_vlan: 400
 
 # VLAN range for all neutron networks - must include provisioning VLAN
-neutron_network_vlan_range: 400:410
+neutron_network_vlan_range: "400:410"
 
 # IPv4 CIDR for subnet that will be used for public IP allocation
 # Defaults to value of `public_subnet`
@@ -21,8 +21,8 @@ neutron_network_vlan_range: 400:410
 # You must define 2 or some Puppet recipes will not evaluate.
 # (Defaults to Google DNS)
 neutron_dns_servers:
-  - '8.8.8.8'
-  - '8.8.4.4'
+  - "8.8.8.8"
+  - "8.8.4.4"
 
 # Neutron generic switch configurations. The keys for this dictionary are
 # the switch names, and the switch names are used when creating Ironic ports
@@ -61,36 +61,36 @@ neutron_ngs_switches:
 # Service accounts
 ###################
 
-admin_password: "{{ lookup('password', '/dev/null') }}"
-admin_token: "{{ lookup('password', '/dev/null') }}"
-backup_password: "{{ lookup('password', '/dev/null') }}"
-blazar_dbpass: "{{ lookup('password', '/dev/null') }}"
-blazar_pass: "{{ lookup('password', '/dev/null') }}"
-ceilometer_dbpass: "{{ lookup('password', '/dev/null') }}"
-ceilometer_pass: "{{ lookup('password', '/dev/null') }}"
-cinder_dbpass: "{{ lookup('password', '/dev/null') }}"
-cinder_pass: "{{ lookup('password', '/dev/null') }}"
-db_hammers_pass: "{{ lookup('password', '/dev/null') }}"
-db_readonly_pass: "{{ lookup('password', '/dev/null') }}"
-glance_dbpass: "{{ lookup('password', '/dev/null') }}"
-glance_pass: "{{ lookup('password', '/dev/null') }}"
-gnocchi_dbpass: "{{ lookup('password', '/dev/null') }}"
-gnocchi_pass: "{{ lookup('password', '/dev/null') }}"
-heat_dbpass: "{{ lookup('password', '/dev/null') }}"
-heat_domain_admin_password: "{{ lookup('password', '/dev/null') }}"
-heat_pass: "{{ lookup('password', '/dev/null') }}"
-horizon_secret_key: "{{ lookup('password', '/dev/null') }}"
-instance_metrics_writer_password: "{{ lookup('password', '/dev/null') }}"
-ironic_dbpass: "{{ lookup('password', '/dev/null') }}"
-ironic_pass: "{{ lookup('password', '/dev/null') }}"
-keystone_dbpass: "{{ lookup('password', '/dev/null') }}"
-metadata_proxy_shared_secret: "{{ lookup('password', '/dev/null') }}"
-mysql_root: "{{ lookup('password', '/dev/null') }}"
-neutron_dbpass: "{{ lookup('password', '/dev/null') }}"
-neutron_pass: "{{ lookup('password', '/dev/null') }}"
-nova_dbpass: "{{ lookup('password', '/dev/null') }}"
-nova_pass: "{{ lookup('password', '/dev/null') }}"
-nova_placement_dbpass: "{{ lookup('password', '/dev/null') }}"
-nova_placement_pass: "{{ lookup('password', '/dev/null') }}"
-rabbit_password: "{{ lookup('password', '/dev/null') }}"
-swift_pass: "{{ lookup('password', '/dev/null') }}"
+admin_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+admin_token: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+backup_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+blazar_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+blazar_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+ceilometer_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+ceilometer_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+cinder_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+cinder_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+db_hammers_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+db_readonly_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+glance_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+glance_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+gnocchi_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+gnocchi_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+heat_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+heat_domain_admin_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+heat_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+horizon_secret_key: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+instance_metrics_writer_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+ironic_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+ironic_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+keystone_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+metadata_proxy_shared_secret: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+mysql_root: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+neutron_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+neutron_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+nova_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+nova_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+nova_placement_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+nova_placement_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+rabbit_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+swift_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
