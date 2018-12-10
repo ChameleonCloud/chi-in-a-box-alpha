@@ -23,7 +23,7 @@
     - Puppetfile
 
 - name: Install Puppet modules.
-  command: r10k install
+  command: r10k puppetfile install
   args:
     chdir: "{{ puppetmaster_environment }}"
 
