@@ -5,7 +5,7 @@
 
 - name: Run Puppet.
   puppet:
-    environment: chi-in-a-box
+    environment: ciab
 
 - import_tasks: ironic.yml
   tags:
