@@ -18,19 +18,19 @@ $ssl_letsencrypt = false
 # Network settings
 ###################
 
-$private_ip = '{{ private_ip }}'
-$private_interface = '{{ private_interface }}'
-$private_subnet = '{{ private_subnet }}'
+$private_ip = '{{ ciab_private_ip }}'
+$private_interface = '{{ ciab_private_interface }}'
+$private_subnet = '{{ ciab_private_subnet }}'
 
-$public_ip  = '{{ public_ip }}'
-$public_interface = '{{ public_interface }}'
-$public_subnet = '{{ public_subnet }}'
-$public_gateway = '{{ public_gateway }}'
+$public_ip  = '{{ ciab_public_ip }}'
+$public_interface = '{{ ciab_public_interface }}'
+$public_subnet = '{{ ciab_public_subnet }}'
+$public_gateway = '{{ ciab_public_gateway }}'
 
 $ironic_provisioning_vlan = '{{ ironic_provisioning_vlan }}'
+
 $tenant_network_vlan_range = '{{ neutron_network_vlan_range }}'
 $tenant_network_public_ip_subnet = '{{ neutron_network_public_subnet | default(public_subnet) }}'
-
 $dns_servers = {{ neutron_dns_servers | to_json }}
 $neutron_private_interface = '{{ neutron_private_interface | default(private_interface) }}'
 $neutron_public_interface = '{{ neutron_public_interface | default(public_interface) }}'

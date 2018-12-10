@@ -7,6 +7,16 @@ ciab_admin_email: "{{ ciab_admin_email }}"
 # and also to indicate which site a user is currenty logged in to in Horizon.
 ciab_region_name: "{{ ciab_region_name }}"
 
+ciab_private_interface: eno1
+ciab_private_ip: "{{ ansible_eno1.ipv4.address }}"
+ciab_private_subnet: "{{ (ansible_eno1.network + '/' + ansible_eno1.netmask) | ipaddr('net') }}"
+ciab_private_gateway: "{{ ansible_eno1.ipv4.gateway }}"
+
+ciab_public_interface: eno2
+ciab_public_ip: "{{ ansible_eno2.ipv4.address }}"
+ciab_public_subnet: "{{ (ansible_eno2.network + '/' + ansible_eno2.netmask) | ipaddr('net') }}"
+ciab_public_gateway: "{{ ansible_eno2.ipv4.gateway }}"
+
 # VLAN id for provisioning network
 ironic_provisioning_vlan: 400
 
@@ -14,7 +24,7 @@ ironic_provisioning_vlan: 400
 neutron_network_vlan_range: "400:410"
 
 # IPv4 CIDR for subnet that will be used for public IP allocation
-# Defaults to value of `public_subnet`
+# Defaults to value of `ciab_public_subnet`
 #neutron_network_public_subnet:
 
 # DNS servers to use for default DNS resolution on all nodes and Neutron subnets.
@@ -49,12 +59,12 @@ neutron_ngs_switches:
 
 # Neutron private interface details - this is the interface that will be used
 # for all internal tenant network routing.
-# Defaults to value of `private_interface`
+# Defaults to value of `ciab_private_interface`
 #neutron_private_interface:
 
 # Neutron public interface details - this is the interface that will be used for
 # inbound traffic to tenant floating IPs.
-# Defaults to value of `public_interface`
+# Defaults to value of `ciab_public_interface`
 #neutron_public_interface:
 
 ###################

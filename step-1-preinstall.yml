@@ -8,9 +8,13 @@
         src: templates/globals.yml.j2
         dest: globals.yml
         mode: '0600'
+        backup: yes
+        force: no
     - template:
         src: templates/hosts.j2
         dest: hosts
+        backup: yes
+        force: no
     - debug:
         msg:
           - "A new globals file has been outputted to this directory."
