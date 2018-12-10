@@ -3,6 +3,7 @@ set -e -u
 
 taskset="${1:-all}"
 globals="globals.yml"
+inventory="hosts"
 
 preinstall() {
   ansible-playbook step-1-preinstall.yml
@@ -11,12 +12,14 @@ preinstall() {
 install() {
   ansible-playbook step-2-install.yml \
     --extra-vars "@$globals" \
+    --inventory "$inventory" \
     --skip-tags "postinstall"
 }
 
 postinstall() {
   ansible-playbook step-3-postinstall.yml \
     --extra-vars "@$globals" \
+    --inventory "$inventory" \
     --tags "postinstall"
 }
 
