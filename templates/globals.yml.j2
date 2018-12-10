@@ -7,15 +7,18 @@ ciab_admin_email: "{{ ciab_admin_email }}"
 # and also to indicate which site a user is currenty logged in to in Horizon.
 ciab_region_name: "{{ ciab_region_name }}"
 
-ciab_private_interface: eno1
-ciab_private_ip: "{{ ansible_eno1.ipv4.address }}"
-ciab_private_subnet: "{{ (ansible_eno1.network + '/' + ansible_eno1.netmask) | ipaddr('net') }}"
-ciab_private_gateway: "{{ ansible_eno1.ipv4.gateway }}"
+# The private interface is used for east-west traffic: OpenStack internal
+# traffic and tenant network with Neutron being the main uses.
+ciab_private_interface: "{{ ciab_private_interface }}"
+ciab_private_ip: "{{ ciab_private_ip }}"
+ciab_private_subnet: "{{ ciab_private_subnet }}"
+ciab_private_gateway: "{{ ciab_private_gateway }}"
 
-ciab_public_interface: eno2
-ciab_public_ip: "{{ ansible_eno2.ipv4.address }}"
-ciab_public_subnet: "{{ (ansible_eno2.network + '/' + ansible_eno2.netmask) | ipaddr('net') }}"
-ciab_public_gateway: "{{ ansible_eno2.ipv4.gateway }}"
+# The public interface is used for north-south traffic (public Internet)
+ciab_public_interface: "{{ ciab_public_interface }}"
+ciab_public_ip: "{{ ciab_public_ip }}"
+ciab_public_subnet: "{{ ciab_public_subnet }}"
+ciab_public_gateway: "{{ ciab_public_gateway }}"
 
 # VLAN id for provisioning network
 ironic_provisioning_vlan: 400

@@ -30,14 +30,14 @@ $public_gateway = '{{ ciab_public_gateway }}'
 $ironic_provisioning_vlan = '{{ ironic_provisioning_vlan }}'
 
 $tenant_network_vlan_range = '{{ neutron_network_vlan_range }}'
-$tenant_network_public_ip_subnet = '{{ neutron_network_public_subnet | default(public_subnet) }}'
+$tenant_network_public_ip_subnet = '{{ neutron_network_public_subnet | default(ciab_public_subnet) }}'
 $dns_servers = {{ neutron_dns_servers | to_json }}
-$neutron_private_interface = '{{ neutron_private_interface | default(private_interface) }}'
-$neutron_public_interface = '{{ neutron_public_interface | default(public_interface) }}'
+$neutron_private_interface = '{{ neutron_private_interface | default(ciab_private_interface) }}'
+$neutron_public_interface = '{{ neutron_public_interface | default(ciab_public_interface) }}'
 $neutron_ngs_switches = {
 {% for switch in neutron_ngs_switches %}
   '{{ switch.name }}' => {
-    'device_type' => '{{ switch.type }}',
+    'device_type' => '{{ switch.device_type }}',
     'ip'          => '{{ switch.ip }}',
     'username'    => '{{ switch.username }}',
     'password'    => '{{ switch.password }}',
