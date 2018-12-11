@@ -7,6 +7,15 @@ ciab_admin_email: "{{ ciab_admin_email }}"
 # and also to indicate which site a user is currenty logged in to in Horizon.
 ciab_region_name: "{{ ciab_region_name }}"
 
+# SSL can use LetsEncrypt certificates - if true, certificates will be
+# automatically loaded from the default certbot directory of /etc/letsencrypt/live/${fqdn}
+# If you are providing your own certificates, they are expected to be in
+# /root at the following locations:
+#   - Certificate: "${fqdn}.cer"
+#   - Private key: "${fqdn}.key"
+#   - Intermediate certificate: "${fqdn}-interm.cer"
+ciab_ssl_letsencrypt: {{ ciab_ssl_letsencrypt }}
+
 # The private interface is used for east-west traffic: OpenStack internal
 # traffic and tenant network with Neutron being the main uses.
 ciab_private_interface: "{{ ciab_private_interface }}"

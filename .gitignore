@@ -1,1 +1,8 @@
+# Ansible variables
 /globals.yml
+# Ansible inventory
+/hosts
+# User-defined node list
+/nodes.conf
+# Ansible failures
+*.retry

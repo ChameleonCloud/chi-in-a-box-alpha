@@ -4,15 +4,7 @@
 
 $region = '{{ ciab_region_name }}'
 $email = '{{ ciab_admin_email }}'
-
-# SSL can use LetsEncrypt certificates - if true, certificates will be
-# automatically loaded from the default certbot directory of /etc/letsencrypt/live/${fqdn}
-# If you are providing your own certificates, they are expected to be in
-# /root at the following locations:
-#   - Certificate: "${fqdn}.cer"
-#   - Private key: "${fqdn}.key"
-#   - Intermediate certificate: "${fqdn}-interm.cer"
-$ssl_letsencrypt = false
+$ssl_letsencrypt = {{ ciab_ssl_letsencrypt | bool | lower }}
 
 ###################
 # Network settings

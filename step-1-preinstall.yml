@@ -32,29 +32,35 @@
         good convention to follow is "CHI@" followed by an abbreviation of
         the hosting institution or organization. For example, University of
         Chicago's site name is "CHI@UC"
+    - name: ciab_ssl_letsencrypt
+      private: no
+      default: no
+      prompt: |
+        Use LetsEncrypt certificates for SSL? If yes, the certificates are
+        expected to be in the standard LetsEncrypt directory.
     - name: ciab_private_interface
       private: no
       default: eno1
       prompt: Network interface for *private* (east-west) traffic on controller node?
-    - name: ciab_private_ip
-      private: no
-      prompt: IP address on *private* interface for controller node?
     - name: ciab_private_subnet
       private: no
-      prompt: IPv4 subnet (CIDR) on *private* interface for controller node?
+      prompt:   - IPv4 subnet (CIDR format)?
     - name: ciab_private_gateway
       private: no
-      prompt: IPv4 gateway on *private* interface for controller node?
+      prompt:   - IPv4 gateway?
+    - name: ciab_private_ip
+      private: no
+      prompt:   - IPv4 address?
     - name: ciab_public_interface
       private: no
-      default: eno1
+      default: eno2
       prompt: Network interface for *public* (north-south) traffic on controller node?
-    - name: ciab_public_ip
-      private: no
-      prompt: IP address on *public* interface for controller node?
     - name: ciab_public_subnet
       private: no
-      prompt: IPv4 subnet (CIDR) on *public* interface for controller node?
+      prompt:   - IPv4 subnet (CIDR format)?
     - name: ciab_public_gateway
       private: no
-      prompt: IPv4 gateway on *public* interface for controller node?
+      prompt:   - IPv4 gateway?
+    - name: ciab_public_ip
+      private: no
+      prompt:   - IPv4 address?
