@@ -1,0 +1,25 @@
+---
+- name: Download deploy ramdisk and kernel images.
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - url: "{{ controller_remote_image_baseurl }}/coreos_production_pxe-stable-{{ controller_openstack_release }}.vmlinuz"
+      dest: "deploy_kernel-{{ controller_openstack_release }}"
+    - url: "{{ controller_remote_image_baseurl }}/coreos_production_pxe_image-oem-stable-{{ controller_openstack_release }}.cpio.gz"
+      dest: "deploy_ramdisk-{{ controller_openstack_release }}"
+
+- name: Create deploy ramdisk and kernel images.
+  os_image:
+    state: present
+    name: "{{ item }}"
+    is_public: yes
+    interface: admin
+    container_format: aki
+    disk_format: aki
+    file: "{{ item }}-{{ controller_openstack_release }}"
+  loop:
+    - deploy_kernel
+    - deploy_ramdisk
+
+# TODO: Also download Chameleon base images like CC-CentOS7 and CC-Ubuntu16

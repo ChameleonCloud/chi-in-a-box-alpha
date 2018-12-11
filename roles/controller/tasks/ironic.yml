@@ -1,2 +1,17 @@
 ---
-# Create Ironic deploy images
+- name: Create baremetal flavor.
+  os_nova_flavor:
+    state: present
+    name: baremetal
+    interface: admin
+    is_public: yes
+    # Needs to be greater than largest expected disk image, yet smaller than
+    # actual node capacity; we guess a low value.
+    disk: 20
+    ram: 1
+    vcpus: 1
+
+- name: Create freepool aggregate.
+  os_nova_host_aggregate:
+    state: present
+    name: freepool

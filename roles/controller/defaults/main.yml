@@ -1,0 +1,3 @@
+---
+controller_openstack_release: ocata
+controller_remote_image_baseurl: https://tarballs.openstack.org/ironic-python-agent/coreos/files

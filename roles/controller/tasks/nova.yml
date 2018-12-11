@@ -1,6 +1,3 @@
 ---
-# Set up baremetal Nova flavor
-
-# Discover Nova hosts
-
-# Create Nova freepool aggregate
+- name: Discover hosts.
+  command: nova-manage cell_v2 discover_hosts

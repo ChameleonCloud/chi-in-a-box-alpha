@@ -7,15 +7,15 @@
   puppet:
     environment: ciab
 
+- import_tasks: glance.yml
+  tags:
+    - postinstall
+    - glance
+
 - import_tasks: ironic.yml
   tags:
     - postinstall
     - ironic
-
-- import_tasks: neutron.yml
-  tags:
-    - postinstall
-    - neutron
 
 - import_tasks: nova.yml
   tags:
