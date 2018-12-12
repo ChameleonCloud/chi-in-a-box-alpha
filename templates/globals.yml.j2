@@ -39,6 +39,14 @@ neutron_network_vlan_range: "400:410"
 # Defaults to value of `ciab_public_subnet`
 #neutron_network_public_subnet:
 
+# IPv4 range for public IP allocations - this can be different from the
+# public subnet value to allow splitting a common subnet across multiple
+# deploys (for example development vs production).
+# This is an array with the first value being the first IP that can be
+# allocated by Neutron, and the second value being the final IP.
+# Defaults to first and last IP in the `neutron_network_public_subnet`.
+#neutron_network_public_subnet_allocation_range: []
+
 # DNS servers to use for default DNS resolution on all nodes and Neutron subnets.
 # You must define 2 or some Puppet recipes will not evaluate.
 # (Defaults to Google DNS)
