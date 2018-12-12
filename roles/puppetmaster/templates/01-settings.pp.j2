@@ -23,6 +23,13 @@ $ironic_provisioning_vlan = '{{ ironic_provisioning_vlan }}'
 
 $tenant_network_vlan_range = '{{ neutron_network_vlan_range }}'
 $tenant_network_public_ip_subnet = '{{ neutron_network_public_subnet | default(ciab_public_subnet) }}'
+{% if neutron_network_public_subnet_allocation_range %}
+$tenant_network_public_ip_allocation_start = '{{ neutron_network_public_subnet_allocation_range[0] }}'
+$tenant_network_public_ip_allocation_end = '{{ neutron_network_public_subnet_allocation_range[1] }}'
+{% else %}
+$tenant_network_public_ip_allocation_start = '{{ neutron_network_public_subnet | default(ciab_public_subnet) | ipaddr('0') }}'
+$tenant_network_public_ip_allocation_end = '{{ neutron_network_public_subnet | default(ciab_public_subnet) | ipaddr('-1') }}'
+{% endif %}
 $dns_servers = {{ neutron_dns_servers | to_json }}
 $neutron_private_interface = '{{ neutron_private_interface | default(ciab_private_interface) }}'
 $neutron_public_interface = '{{ neutron_public_interface | default(ciab_public_interface) }}'
