@@ -7,6 +7,13 @@
   puppet:
     environment: ciab
 
+- name: Install pip dependencies.
+  block:
+    - package:
+        name: python-pip
+    - pip:
+        name: openstacksdk
+
 - import_tasks: glance.yml
   tags:
     - postinstall
