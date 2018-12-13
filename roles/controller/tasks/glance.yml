@@ -2,12 +2,12 @@
 - name: Download deploy ramdisk and kernel images.
   get_url:
     url: "{{ item.url }}"
-    dest: "{{ item.dest }}"
+    dest: "{{ controller_deploy_image_path }}/{{ item.dest }}-{{ controller_openstack_release }}"
   loop:
-    - url: "{{ controller_remote_image_baseurl }}/coreos_production_pxe-stable-{{ controller_openstack_release }}.vmlinuz"
-      dest: "deploy_kernel-{{ controller_openstack_release }}"
-    - url: "{{ controller_remote_image_baseurl }}/coreos_production_pxe_image-oem-stable-{{ controller_openstack_release }}.cpio.gz"
-      dest: "deploy_ramdisk-{{ controller_openstack_release }}"
+    - url: "{{ controller_deploy_image_baseurl }}/coreos_production_pxe-stable-{{ controller_openstack_release }}.vmlinuz"
+      dest: "deploy_kernel"
+    - url: "{{ controller_deploy_image_baseurl }}/coreos_production_pxe_image-oem-stable-{{ controller_openstack_release }}.cpio.gz"
+      dest: "deploy_ramdisk"
 
 - name: Create deploy ramdisk and kernel images.
   os_image:
@@ -17,7 +17,7 @@
     interface: admin
     container_format: aki
     disk_format: aki
-    file: "{{ item }}-{{ controller_openstack_release }}"
+    filename: "{{ controller_deploy_image_path }}/{{ item }}-{{ controller_openstack_release }}"
   loop:
     - deploy_kernel
     - deploy_ramdisk
