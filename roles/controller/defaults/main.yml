@@ -1,5 +1,5 @@
 ---
 controller_openstack_release: ocata
-
 controller_deploy_image_baseurl: https://tarballs.openstack.org/ironic-python-agent/coreos/files
 controller_deploy_image_path: /root
+controller_virtualenv: /opt/ansible/venv

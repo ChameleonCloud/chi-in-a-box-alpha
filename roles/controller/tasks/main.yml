@@ -7,12 +7,32 @@
   puppet:
     environment: ciab
 
-- name: Install pip dependencies.
+- name: Create virtualenv.
   block:
-    - package:
-        name: python-pip
-    - pip:
-        name: openstacksdk
+    - name: Create virtualenv directory.
+      file:
+        path: "{{ controller_virtualenv }}"
+        state: directory
+    - name: Install virtualenv.
+      package:
+        name: python-virtualenv
+        state: present
+    - name: Install latest pip.
+      pip:
+        name: pip
+        state: latest
+        virtualenv: "{{ controller_virtualenv }}"
+        virtualenv_site_packages: yes
+    - name: Set fact for virtualenv path.
+      set_fact:
+        ansible_python_interpreter: "{{ controller_virtualenv }}/bin/python"
+      tags:
+        - always
+
+- name: Install pip dependencies.
+  pip:
+    name: openstacksdk
+    virtualenv: "{{ controller_virtualenv }}"
 
 - import_tasks: glance.yml
   tags:
