@@ -10,10 +10,7 @@ for image in CC-CentOS7; do
 
   if [[ ! -e "$file" ]]; then
     log "Downloading image '$image'..."
-    openstack image save --file "$file" "$image" \
-      --os-auth-url="https://chi.uc.chameleoncloud.org:5000/v3" \
-      --os-identity-api-version="3" \
-      --os-token=""
+    wget -O "$file" "https://chi.tacc.chameleoncloud.org:7480/swift/v1/CHI-in-a-Box_public/CC-CentOS7.qcow2"
     log "Uploading to Glance..."
     openstack image create --file "$file" --disk-format "qcow2" --public "$image"
   fi
