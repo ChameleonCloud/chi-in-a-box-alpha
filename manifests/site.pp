@@ -353,5 +353,5 @@ node default {
         port       => '8780',
     }
 
-    nova_flavor { 'baremetal': }
+#    nova_flavor { 'baremetal': }
 }
