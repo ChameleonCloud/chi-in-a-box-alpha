@@ -61,6 +61,47 @@ node default {
       }
     }
 
+    if $manage_interfaces {
+        if $private_ip =~ Stdlib::IP::Address::V4::Nosubnet {
+            # Internal interface (OpenStack services)
+            network::interface { $private_interface:
+        	ipaddress => $private_ip,
+                netmask   => cidr_to_ipv4_netmask($private_subnet),
+                enable  => true,
+                mtu     => '1500',
+                hotplug => 'yes',
+            }
+        }
+
+        if $public_ip =~ Stdlib::IP::Address::V4::Nosubnet {
+            # Public Interface (API / Horizon)
+            network::interface { $public_interface:
+        	ipaddress => $public_ip,
+                netmask   => cidr_to_ipv4_netmask($public_subnet),
+        	gateway   => $public_gateway,
+                enable   => true,
+                mtu      => '1500',
+                defroute => 'yes',
+                peerdns  => 'no',
+		domain	  => $domain,
+                dns1     => $dns_servers[0],
+                dns2     => $dns_servers[1],
+            }
+        }
+
+        if $oob_ip =~ Stdlib::IP::Address::V4::Nosubnet {
+            # Out of Band
+            network::interface { $oob_interface:
+                enable    => true,
+                ipaddress => $oob_ip,
+                netmask   => cidr_to_ipv4_netmask($oob_subnet),
+                mtu       => '1500',
+            }
+        }
+    }
+
+
+
     # Create admin adminrc in /root
     class { 'openstack_extras::auth_file':
         path        => '/root/adminrc',

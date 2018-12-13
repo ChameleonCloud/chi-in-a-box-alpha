@@ -2,16 +2,29 @@
 # Network settings
 ###################
 
+# Whether to instruct Puppet to manage the network interfaces.
+# If true, Puppet will create network scripts for each of the 3 interfaces
+# defined below (internal, external, out-of-band.)
+$manage_interfaces = true
+
 # IPv4 address on internal network
 $private_ip = '10.140.0.1'
+# Internal interface details; only used when `manage_interfaces` is true
 $private_interface = 'eno1'
 $private_subnet = '10.140.0.0/24'
 
 # IPv4 address on external network
 $public_ip  = ''
+# External interface details; only used when `manage_interfaces` is true
 $public_interface = 'eno2'
 $public_subnet = ''
 $public_gateway = ''
+
+# IPv4 address on out-of-band network
+$oob_ip = ''
+# Out-of-band interface details; only used when `manage_interfaces` is true
+$oob_interface = 'em3'
+$oob_subnet = ''
 
 # Neutron private interface details - this is the interface that will be used
 # for all internal tenant network routing.
