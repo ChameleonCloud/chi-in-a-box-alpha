@@ -1,4 +1,58 @@
 ---
 - hosts: controller
-  roles:
-    - controller
+  vars:
+    ansible_python_interpreter: "{{ ansible_virtualenv }}/bin/python"
+    glance_images:
+      - name: pxe_deploy_kernel
+        container_format: aki
+        disk_format: aki
+        url: https://tarballs.openstack.org/ironic-python-agent/coreos/files/coreos_production_pxe-stable-ocata.vmlinuz
+      - name: pxe_deploy_ramdisk
+        container_format: aki
+        disk_format: aki
+        url: https://tarballs.openstack.org/ironic-python-agent/coreos/files/coreos_production_pxe_image-oem-stable-ocata.cpio.gz
+      - name: CC-CentOS7
+        container_format: bare
+        disk_format: qcow2
+        url: https://chi.tacc.chameleoncloud.org:7480/swift/v1/CHI-in-a-Box_public/CC-CentOS7.qcow2
+  tasks:
+    - name: Check state of Glance images.
+      os_image_facts:
+
+    - name: Download source Glance images.
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ ansible_tmp }}/{{ item.name }}"
+      loop: "{{ glance_images }}"
+      when: (openstack_image | selectattr('name', 'match', item.name)) | length
+
+    - name: Create Glance images.
+      os_image:
+        state: present
+        name: "{{ item }}"
+        is_public: yes
+        interface: admin
+        container_format: "{{ item.container_format }}"
+        disk_format: "{{ item.disk_format }}"
+        filename: "{{ ansible_tmp }}/{{ item.name }}"
+      loop: "{{ glance_images }}"
+
+    - name: Create baremetal flavor.
+      os_nova_flavor:
+        state: present
+        name: baremetal
+        interface: admin
+        is_public: yes
+        # Needs to be greater than largest expected disk image, yet smaller than
+        # actual node capacity; we guess a low value.
+        disk: 20
+        ram: 1
+        vcpus: 1
+
+    - name: Create freepool aggregate.
+      os_nova_host_aggregate:
+        state: present
+        name: freepool
+
+    - name: Discover hosts.
+      command: nova-manage cell_v2 discover_hosts

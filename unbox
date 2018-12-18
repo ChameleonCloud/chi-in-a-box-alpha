@@ -12,15 +12,13 @@ preinstall() {
 install() {
   ansible-playbook step-2-install.yml \
     --extra-vars "@$globals" \
-    --inventory "$inventory" \
-    --skip-tags "postinstall"
+    --inventory "$inventory"
 }
 
 postinstall() {
   ansible-playbook step-3-postinstall.yml \
     --extra-vars "@$globals" \
-    --inventory "$inventory" \
-    --tags "postinstall"
+    --inventory "$inventory"
 }
 
 case "$taskset" in

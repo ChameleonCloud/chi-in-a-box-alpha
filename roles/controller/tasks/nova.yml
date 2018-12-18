@@ -1,3 +1,0 @@
----
-- name: Discover hosts.
-  command: nova-manage cell_v2 discover_hosts

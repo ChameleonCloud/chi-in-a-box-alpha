@@ -124,3 +124,12 @@ nova_placement_dbpass: "{{ lookup('password', '/dev/null chars=ascii_letters,dig
 nova_placement_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
 rabbit_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
 swift_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+
+###################
+# Ansible internals
+###################
+
+# Directory for virtualenv used by Ansible - any extra pip modules
+# will be installed here.
+ansible_virtualenv: /etc/ansible/venv
+ansible_tmp: /etc/ansible/.tmp
