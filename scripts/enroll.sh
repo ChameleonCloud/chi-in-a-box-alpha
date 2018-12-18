@@ -2,6 +2,8 @@
 set -e -u -o pipefail
 
 node_conf="$(realpath $1)"
+deploy_kernel="$(openstack image show pxe_deploy_kernel -f value -c id)"
+deploy_ramdisk="$(openstack image show pxe_deploy_ramdisk -f value -c id)"
 
 log() {
   echo "$@" >&2
@@ -32,8 +34,8 @@ update_node() {
   cmd_args+=(--driver-info "ipmi_address=$ipmi_address")
   cmd_args+=(--driver-info "ipmi_port=$ipmi_port")
   cmd_args+=(--driver-info "ipmi_terminal_port=$ipmi_terminal_port")
-  cmd_args+=(--driver-info "deploy_kernel=$DEPLOY_KERNEL")
-  cmd_args+=(--driver-info "deploy_ramdisk=$DEPLOY_RAMDISK")
+  cmd_args+=(--driver-info "deploy_kernel=$deploy_kernel")
+  cmd_args+=(--driver-info "deploy_ramdisk=$deploy_ramdisk")
   cmd_args+=(--network-interface neutron)
   cmd_args+=(--property capabilities="boot_option:local")
   cmd_args+=(--property cpus=48)

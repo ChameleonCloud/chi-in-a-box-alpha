@@ -16,6 +16,11 @@
         disk_format: qcow2
         url: https://chi.tacc.chameleoncloud.org:7480/swift/v1/CHI-in-a-Box_public/CC-CentOS7.qcow2
   tasks:
+    - name: Create temp directory.
+      file:
+        name: "{{ ansible_tmp }}"
+        state: directory
+
     - name: Check state of Glance images.
       os_image_facts:
 
@@ -24,18 +29,22 @@
         url: "{{ item.url }}"
         dest: "{{ ansible_tmp }}/{{ item.name }}"
       loop: "{{ glance_images }}"
-      when: (openstack_image | selectattr('name', 'match', item.name)) | length
+      loop_control:
+        label: "{{ item.name }}"
+      when: (openstack_image | selectattr('name', 'match', item.name)) | list | length
 
     - name: Create Glance images.
       os_image:
         state: present
-        name: "{{ item }}"
+        name: "{{ item.name }}"
         is_public: yes
         interface: admin
         container_format: "{{ item.container_format }}"
         disk_format: "{{ item.disk_format }}"
         filename: "{{ ansible_tmp }}/{{ item.name }}"
       loop: "{{ glance_images }}"
+      loop_control:
+        label: "{{ item.name }}"
 
     - name: Create baremetal flavor.
       os_nova_flavor:
