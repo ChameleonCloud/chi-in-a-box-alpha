@@ -29,14 +29,13 @@ We have identified demand for three types of scenarios in which users would like
 
 ### Assumptions
 
-  - Compute nodes have IPMI-capable out of band (OOB) baseboard management controller (BMC). E.g. Dell iDRAC
+  - Compute nodes have IPMI-capable out of band (OOB) baseboard management controller (BMC) e.g. Dell iDRAC
   - Controller node has been provisioned with CentOS 7
   - SELinux is disabled
-  - `facter fqdn` resolves to the Public/API address. The FQDN of the server is expected to be the same name that is resolved by the Public/API interface, and will be used for SSL certs.
   - This will be a single-controller installation. All services and endpoints will reside on one server.
   - Switches have been configured with appropriate VLAN settings (trunking of provisioning VLAN ranges)
   - The controller node must have SSH access to the switch or switches connecting the compute nodes, for multi-tenant networking
-  - The operator must have an SSH key associated with their github account which must, in turn, have access to the [puppet-chameleoncloud](https://github.com/ChameleonCloud/puppet-chameleoncloud) repository.
+  - The operator must have an SSH key associated with their GitHub account which must, in turn, have access to the [puppet-chameleoncloud](https://github.com/ChameleonCloud/puppet-chameleoncloud) repository.
   - The operator must provide at least two network interfaces. 10GbE is recommended.
     - **em1**: Private (Rabbitmq, MariaDB, OpenStack internals, Neutron, IPMI)
     - **em2**: Public (OpenStack APIs via HTTPS proxy, Horizon, Neutron external bridge)
@@ -45,50 +44,35 @@ We have identified demand for three types of scenarios in which users would like
 
 The following steps assume an installation on a clean CentOS 7 machine, preferably with a private IP network address assigned (i.e. the way OpenStack is often set up.)
 
-1. Install puppet and r10k:
+1. Install Ansible:
 
   ```shell
-  yum install epel-release -y
-  yum install centos-release-openstack-ocata.noarch -y
-  yum install crudini git puppet puppet-server -y
-  yum update selinux-* nss curl libcurl -y
-  systemctl enable puppetmaster
-  systemctl start puppetmaster
-  gem install --no-rdoc --no-ri r10k -v 2.6.4
+  yum install ansible
   ```
 
-2. Determine your private ip address and fqdn:
+2. Use the `unbox` script to complete the installation in three phases. The first phase is pre-install:
 
-  ```shell
-  PRIVATE_IP=$(facter ipaddress)
-  FQDN=$(facter fqdn)
+  ```
+  ./unbox preinstall
   ```
 
-3. Add your private ip to `/etc/hosts` with the alias 'puppet'. One way to do this is:
+  This will generate a `hosts` Ansible [inventory file](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html) and a `globals.yml` Ansible variables file for you to modify further as needed.
 
-  ```shell
-  echo "$(facter ipaddress) puppet" >> /etc/hosts
+3. Run the `install` phase to provision the environment. Currently this uses a different provisioner (Puppet) under the hood.
+
+  ```
+  ./unbox install
   ```
 
-4. Copy `manifest/settings.pp.example` to `manifests/settings.pp`. At minimum you'll need to specify the public and private network subnets for your controller node.
+4. Run the `postinstall` phase to finish setting up some important OpenStack entities to configure your CHI installation for baremetal deploys using OpenStack ironic.
 
-5. Run `gensettings` script to (re-)populate `manifests/settings.pp` with randomized secrets.
-
-6. Use r10k to download puppet modules:
-
-  ```shell
-  r10k puppetfile install --puppetfile Puppetfile -v info
   ```
-
-7. Run puppet agent via the `./puppet` wrapper script to install and configure the infrastructure pieces:
-
-  ```shell
-  ./puppet agent --test
+  ./unbox postinstall
   ```
 
 ### Node enrollment
 
-To enroll your nodes, we have provided a bootstrap script you can run against a configuration of nodes. To use this, first prepare some information about your nodes. You will need to pick a name for the node, know its (existing) IPMI address on the network (and be able to connect to this from the controller node already), its (existing) IPMI password, the MAC address for its NIC, the name of the switch it is connected to (which you have defined in `$neutron_ngs_switches` in your `settings.pp` file), and which switch port it is connected to. An example is:
+To enroll your nodes, we have provided a bootstrap script you can run against a configuration of nodes. To use this, first prepare some information about your nodes. You will need to pick a name for the node, know its (existing) IPMI address on the network (and be able to connect to this from the controller node already), its (existing) IPMI password, the MAC address for its NIC, the name of the switch it is connected to (which you have defined in `neutron_ngs_switches` in your `globals.yml` file), and which switch port it is connected to. An example is:
 
 ```
 [node01]
@@ -110,22 +94,17 @@ mac_address = 00:00:de:ad:be:ef
 Once you have this file (let's call it `nodes.conf`), you can kick off the bootstrap script:
 
 ```shell
-./scripts/bootstrap.sh nodes.conf
+./scripts/enroll.sh nodes.conf
 ```
 
 This script will do many things, namely:
 
-  * Perform sanity checks that your environment is set up properly
-  * Download kernel and ramdisk images and add them to Glance (used for Ironic provisioning)
-  * Create a `baremetal` Nova flavor used for baremetal provisioning with Ironic
-  * Create a `freepool` Nova aggregate for use by the Blazar reservation system
   * Enroll each node into Ironic and register its network port (so Neutron can hook it up to networks later)
   * Add the node to Blazar to make it reservable
-  * Download Chameleon base images and add to your local Glance registry.
 
 Once all of this has completed successfully, you should have a working setup capable of performing baremetal provisioning.
 
-This bootstrap script is designed to be run multiple times in case you encounter failures; it should be safe to re-run.
+This enrollment script is designed to be run multiple times in case you encounter failures; it should be safe to re-run.
 
 ### Troubleshooting
 
