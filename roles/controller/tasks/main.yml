@@ -22,7 +22,6 @@
         name: pip
         state: latest
         virtualenv: "{{ controller_virtualenv }}"
-        virtualenv_site_packages: yes
     - name: Set fact for virtualenv path.
       set_fact:
         ansible_python_interpreter: "{{ controller_virtualenv }}/bin/python"
