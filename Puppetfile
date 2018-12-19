@@ -40,6 +40,8 @@ mod 'lwf-remote_file', '1.1.3'
 mod 'pcfens-ca_cert'
 mod 'puppetlabs-xinetd'
 mod 'puppetlabs-vcsrepo'
+mod 'puppet-python'
+mod 'stahnma-epel'
 
 mod 'openstack-gnocchi',
     :git => 'https://github.com/openstack/puppet-gnocchi.git',
@@ -90,12 +92,13 @@ mod 'openstack-ironic',
     :branch => 'stable/ocata'
 
 mod 'oslo',
-    :git => 'https://github.com/openstack/puppet-oslo.git'
+    :git => 'https://github.com/openstack/puppet-oslo.git',
+    :branch => 'stable/ocata'
 
+mod 'blazar',
+    :git => 'https://github.com/ChameleonCloud/puppet-blazar.git'
+
+# This is a private GitHub repository - you must request access
 mod 'chameleoncloud',
     :git => 'git@github.com:ChameleonCloud/puppet-chameleoncloud.git',
     :branch => 'ciab'
-
-mod 'blazar',
-    :git => 'git@github.com:ChameleonCloud/puppet-blazar.git'
-

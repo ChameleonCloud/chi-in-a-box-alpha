@@ -9,12 +9,12 @@
 
 CHI-in-a-box is a packaging of the implementation of the core services that together constitute the [Chameleon](https://www.chameleoncloud.org/) testbed for experimental Computer Science research. These services allow Chameleon users to discover information about Chameleon resources, allocate those resources for present and future use, configure them in various ways, and monitor various types of metrics.
 
-While a large part of CHI (CHameleon Infrastructure) is based on an open source project (OpenStack), and all the extensions we made are likewise open source, without proper packaging there was no clear recipe on how to combine them and configure a testbed of this type. CHI-in-a-box is composed of the following three components:
+While a large part of CHI (**CH**\ ameleon **I**\ nfrastructure) is based on an open source project (OpenStack), and all the extensions we made are likewise open source, without proper packaging there was no clear recipe on how to combine them and configure a testbed of this type. CHI-in-a-box is composed of the following three components:
 
-  (a) open source dependencies supported by external projects (e.g., OpenStack and Grid’5000)
-  (b) open source extensions made by the Chameleon team, both ones that are scheduled to be integrated into the original project (but have not been yet) and ones that are specific to the testbed
-  (c) new code written by the team released under the Apache License 2.0.
-  
+  1. open source dependencies supported by external projects (e.g., OpenStack and Grid’5000)
+  2. open source extensions made by the Chameleon team, both ones that are scheduled to be integrated into the original project (but have not been yet) and ones that are specific to the testbed
+  3. new code written by the team released under the Apache License 2.0.
+
 ### Who is it for?
 
 We have identified demand for three types of scenarios in which users would like to use a packaging of Chameleon infrastructure:
@@ -27,177 +27,106 @@ We have identified demand for three types of scenarios in which users would like
 
 ## Installation
 
-The following steps assume an installation on a clean CentOS 7 machine, preferably with a private IP network address assigned (i.e. the way OpenStack is often set up.)
-
-Install puppet and r10k:
-
-    yum install epel-release -y
-    yum install centos-release-openstack-ocata.noarch -y
-    yum install crudini git puppet puppet-server -y
-    yum update selinux-* nss curl libcurl -y
-    systemctl enable puppetmaster
-    systemctl start puppetmaster
-    gem install --no-rdoc --no-ri r10k -v 2.6.4
-
-Determine your private ip address and fqdn:
-
-    > facter ipaddress
-    10.0.1.11
-    > facter fqdn
-    host01.novalocal
-
-Add your hosts private ip to `/etc/hosts` with the aliases 'puppet' and 'controller'. One way to do this is:
-
-    echo "$(facter ipaddress) controller puppet" >> /etc/hosts
-
-Add some variables to `manifests/settings.pp`. At minimum you'll need to specify the internalip:
-
-    internalip: '10.0.1.11'
-
-Run `gensettings` script to populate `manifests/settings.pp` with randomized secrets.
-
-Update `manifests/site.pp` 'node' line to reflect your fqdn:
-
-    node host01.novalocal { }
-
-Use r10k to download puppet modules:
-
-    r10k puppetfile install --puppetfile Puppetfile -v info
-
-Run the `pub` script to put all the puppet manifest files in the right place:
-
-    ./pub
-
-Run puppet agent to actually do everything:
-
-    puppet agent -t
-
-
-## Site Prerequisites
-
 ### Assumptions
 
   - Compute nodes have IPMI-capable out of band (OOB) baseboard management controller (BMC). E.g. Dell iDRAC
   - Controller node has been provisioned with CentOS 7
   - SELinux is disabled
-  - `facter fqdn` resolves to the Public/API address
+  - `facter fqdn` resolves to the Public/API address. The FQDN of the server is expected to be the same name that is resolved by the Public/API interface, and will be used for SSL certs.
   - This will be a single-controller installation. All services and endpoints will reside on one server.
-  - Switches have been configured with appropriate VLAN settings
-  - The operator will be responsible for adding nodes to Ironic and Blazar
+  - Switches have been configured with appropriate VLAN settings (trunking of provisioning VLAN ranges)
   - The controller node must have SSH access to the switch or switches connecting the compute nodes, for multi-tenant networking
+  - The operator must have an SSH key associated with their github account which must, in turn, have access to the [puppet-chameleoncloud](https://github.com/ChameleonCloud/puppet-chameleoncloud) repository.
+  - The operator must provide at least two network interfaces. 10GbE is recommended.
+    - **em1**: Private (Rabbitmq, MariaDB, OpenStack internals, Neutron, IPMI)
+    - **em2**: Public (OpenStack APIs via HTTPS proxy, Horizon, Neutron external bridge)
 
-## Controller Node
+### Step-by-step
 
-Control Node Interfaces (the following is the TACC interface reference)
+The following steps assume an installation on a clean CentOS 7 machine, preferably with a private IP network address assigned (i.e. the way OpenStack is often set up.)
 
-The operator must provide valid interface configurations
+1. Install puppet and r10k:
 
-* em1 (10 GbE):  Management + Deployment
-		  Rabbitmq
-		  MariaDB
-		  Openstack Internals
-* em2: (10 GbE)  Public/API
-		  HTTPS Proxy
-		  Openstack Endpoints
-		  Horizon
-* em3: (1 GbE) Out of Band
-		  IPMI
+  ```shell
+  yum install epel-release -y
+  yum install centos-release-openstack-ocata.noarch -y
+  yum install crudini git puppet puppet-server -y
+  yum update selinux-* nss curl libcurl -y
+  systemctl enable puppetmaster
+  systemctl start puppetmaster
+  gem install --no-rdoc --no-ri r10k -v 2.6.4
+  ```
 
-* p5p2 (10 GbE) Trunk Mode (Traffic In):   physnet (Neutron Contruct connecting SDN to physical network)
-* p5p1 (10 GbE) Switch Mode (Traffic out):
-external bridge
-br-p5p2.400 Ironic TFTP interface. VLAN 400 is assigned to the Ironic Provisioning Network ($ironic_provisioning_vlan in settings.pp)
+2. Determine your private ip address and fqdn:
 
-The FQDN of the server is expected to be the same name that is resolved by the Public/API interface, and will be used for SSL certs.
+  ```shell
+  PRIVATE_IP=$(facter ipaddress)
+  FQDN=$(facter fqdn)
+  ```
 
-The operator must have an SSH key associated with their github account which must, in turn, have access to the puppet Chameleon repository at https://github.com/ChameleonCloud/puppet-chameleoncloud/tree/ciab
+3. Add your private ip to `/etc/hosts` with the alias 'puppet'. One way to do this is:
 
-To Set Up a Baremetal Flavor:
+  ```shell
+  echo "$(facter ipaddress) puppet" >> /etc/hosts
+  ```
 
-    Admin -> System -> Flavors
-	click create flavor
-	fill in VCPU’s, RAM in MBs, and Disk size in GB
+4. Copy `manifest/settings.pp.example` to `manifests/settings.pp`. At minimum you'll need to specify the public and private network subnets for your controller node.
 
+5. Run `gensettings` script to (re-)populate `manifests/settings.pp` with randomized secrets.
 
-## To Setup CoreOS:
+6. Use r10k to download puppet modules:
 
-Download CoreOSramdisk and kernel (cpio.gz and vmlinuz)
+  ```shell
+  r10k puppetfile install --puppetfile Puppetfile -v info
+  ```
 
-CoreOS deploy kernel
-```
-wget http://tarballs.openstack.org/ironic-python-agent/coreos/files/coreos_production_pxe-stable-ocata.vmlinuz
-```
-CoreOS deploy ramdisk
-```
-wget http://tarballs.openstack.org/ironic-python-agent/coreos/files/coreos_production_pxe_image-oem-stable-ocata.cpio.gz
-```
+7. Run puppet agent via the `./puppet` wrapper script to install and configure the infrastructure pieces:
 
-## Create images in Glance
+  ```shell
+  ./puppet agent --test
+  ```
 
-```
-openstack image create --public --disk-format aki --container-format aki --file ./coreos_production_pxe-stable-ocata.vmlinuz deploy_kernel
-DEPLOY_KERNEL=<UUID generated>
-openstack image create --public --disk-format ari --container-format ari --file ./coreos_production_pxe_image-oem-stable-ocata.cpio.gz deploy_ramdisk
-DEPLOY_RAMDISK=<UUID generated>
-```
-## To Enroll Nodes into Ironic:
+### Node enrollment
 
-Create a node in Ironic
+To enroll your nodes, we have provided a bootstrap script you can run against a configuration of nodes. To use this, first prepare some information about your nodes. You will need to pick a name for the node, know its (existing) IPMI address on the network (and be able to connect to this from the controller node already), its (existing) IPMI password, the MAC address for its NIC, the name of the switch it is connected to (which you have defined in `$neutron_ngs_switches` in your `settings.pp` file), and which switch port it is connected to. An example is:
 
 ```
-ironic --ironic-api-version latest node-create -d pxe_ipmitool_socat -n <NODE_NAME> \
--i ipmi_username=<IPMI_USERNAME> -i ipmi_password=<IPMI_PASSWORD> -i ipmi_address=<IPMI_ADDRESS> \
--p cpus=48 -p memory_mb=128000 -p local_gb=200 -p cpu_arch=x86_64 -p capabilities="boot_option:local" \
---network-interface neutron -i ipmi_terminal_port=<CONSOLE_PORT> \
--i deploy_kernel=$DEPLOY_KERNEL -i deploy_ramdisk=$DEPLOY_RAMDISK
-NODEUUID=<generated UUID>
+[node01]
+ipmi_username = root
+ipmi_password = hopefully_not_default
+ipmi_address = 10.10.10.1
+ipmi_port = 623 # Optional, defaults to this value.
+# Arbitrary terminal port; this is used to plumb a socat process to allow
+# reading and writing to a virtual console. It is just important that it does
+# not conflict with another node or host process.
+ipmi_terminal_port = 30133
+switch_name = LeafSwitch01
+switch_port_id = Te 1/10/1
+mac_address = 00:00:de:ad:be:ef
+
+# .. repeat for more nodes.
 ```
 
-## To Set up Provisioning
+Once you have this file (let's call it `nodes.conf`), you can kick off the bootstrap script:
 
-Create a port for the node
-
-```
-ironic port-create -n $NODEUUID  -a <MAC of Node>
-PORTUUID=<UUID generated>
-```
-Get provisioning network UUID
-
-```
-openstack network list
+```shell
+./scripts/bootstrap.sh nodes.conf
 ```
 
-Make sure ironic network is set for multi-tenant
+This script will do many things, namely:
 
-```
-cat /etc/ironic/ironic.conf | grep enabled_network_interfaces
-enabled_network_interfaces=flat,neutron #You want to see this
-```
+  * Perform sanity checks that your environment is set up properly
+  * Download kernel and ramdisk images and add them to Glance (used for Ironic provisioning)
+  * Create a `baremetal` Nova flavor used for baremetal provisioning with Ironic
+  * Create a `freepool` Nova aggregate for use by the Blazar reservation system
+  * Enroll each node into Ironic and register its network port (so Neutron can hook it up to networks later)
+  * Add the node to Blazar to make it reservable
+  * Download Chameleon base images and add to your local Glance registry.
 
-Configure node to use neutron
-```
-export IRONIC_API_VERSION=1.20
-ironic node-set-maintenance $NODEUUID on
-ironic node-update $NODEUUID replace network_interface=neutron
-ironic port-update $PORTUUID add local_link_connection/switch_id=00:00:00:00:00:00 \ local_link_connection/switch_info=<Switch Hostname> \ local_link_connection/port_id=“$PORTUUID“
-ironic node-set-maintenance $NODEUUID off
-ironic node-update $NODEUUID add driver_info/ipmi_terminal_port=<Some Number> (Avoid collisions with other node ports)
-ironic node-set-console-mode $NODEUUID on (Turn on Console)
-```
+Once all of this has completed successfully, you should have a working setup capable of performing baremetal provisioning.
 
-Enable node to be used
-```
-ironic node-set-provision-state $NODEUUID provide
-```
-Validate Node Settings after launching instance
-```
-ironic node-validate $NODEUUID
-```
+This bootstrap script is designed to be run multiple times in case you encounter failures; it should be safe to re-run.
 
-## Known Issues
+### Troubleshooting
 
-Blazar does not properly setup it’s database via puppet run. Manually do this after running puppet:
-
-```
-blazar-db-manage --config-file /etc/blazar/blazar.conf upgrade head
-```
+Please see the [troubleshooting guide](./TROUBLESHOOTING.md) for remedies to problems that have been seen in practice. It is also helpful to read about [Ironic provisioning](https://docs.openstack.org/ironic/pike/user/) so you can diagnose which step may be failing for your setup.
