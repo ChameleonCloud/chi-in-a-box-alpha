@@ -1,5 +1,4 @@
 node default {
-
     $ssl_path_base = '/etc/pki/tls'
     $ssl_cert      = "${ssl_path_base}/certs/${fqdn}.cer"
     $ssl_key       = "${ssl_path_base}/private/${fqdn}.key"
@@ -7,6 +6,7 @@ node default {
 
     if $ssl_letsencrypt {
       $ssl_letsencrypt_base = "/etc/letsencrypt/live/${fqdn}"
+      $ssl_chain = "${ssl_letsencrypt_base}/fullchain.pem"
 
       file { $ssl_cert:
         ensure => 'link',
@@ -62,45 +62,43 @@ node default {
     }
 
     if $manage_interfaces {
-        if $private_ip =~ Stdlib::IP::Address::V4::Nosubnet {
-            # Internal interface (OpenStack services)
-            network::interface { $private_interface:
-        	ipaddress => $private_ip,
-                netmask   => cidr_to_ipv4_netmask($private_subnet),
-                enable  => true,
-                mtu     => '1500',
-                hotplug => 'yes',
-            }
+      if $private_ip =~ Stdlib::IP::Address::V4::Nosubnet {
+        # Internal interface (OpenStack services)
+        network::interface { $private_interface:
+          ipaddress => $private_ip,
+          netmask   => cidr_to_ipv4_netmask($private_subnet),
+          enable    => true,
+          mtu       => '1500',
+          hotplug   => 'yes',
         }
+      }
 
-        if $public_ip =~ Stdlib::IP::Address::V4::Nosubnet {
-            # Public Interface (API / Horizon)
-            network::interface { $public_interface:
-        	ipaddress => $public_ip,
-                netmask   => cidr_to_ipv4_netmask($public_subnet),
-        	gateway   => $public_gateway,
-                enable   => true,
-                mtu      => '1500',
-                defroute => 'yes',
-                peerdns  => 'no',
-		domain	  => $domain,
-                dns1     => $dns_servers[0],
-                dns2     => $dns_servers[1],
-            }
-        }
+      if $public_ip =~ Stdlib::IP::Address::V4::Nosubnet {
+          # Public Interface (API / Horizon)
+          network::interface { $public_interface:
+            ipaddress => $public_ip,
+            netmask   => cidr_to_ipv4_netmask($public_subnet),
+            gateway   => $public_gateway,
+            enable    => true,
+            mtu       => '1500',
+            defroute  => 'yes',
+            peerdns   => 'no',
+            domain    => $domain,
+            dns1      => $dns_servers[0],
+            dns2      => $dns_servers[1],
+          }
+      }
 
-        if $oob_ip =~ Stdlib::IP::Address::V4::Nosubnet {
-            # Out of Band
-            network::interface { $oob_interface:
-                enable    => true,
-                ipaddress => $oob_ip,
-                netmask   => cidr_to_ipv4_netmask($oob_subnet),
-                mtu       => '1500',
-            }
+      if $oob_ip =~ Stdlib::IP::Address::V4::Nosubnet {
+        # Out of Band
+        network::interface { $oob_interface:
+          enable    => true,
+          ipaddress => $oob_ip,
+          netmask   => cidr_to_ipv4_netmask($oob_subnet),
+          mtu       => '1500',
         }
+      }
     }
-
-
 
     # Create admin adminrc in /root
     class { 'openstack_extras::auth_file':
@@ -109,7 +107,7 @@ node default {
         region_name => $region,
         auth_url    => $keystone_public_endpoint,
         # project_name => $admin_project_name,
-        tenant_name => 'openstack',
+        tenant_name  => 'openstack',
     }
 
     class { 'memcached':
@@ -154,6 +152,10 @@ node default {
         admin_endpoint                   => $keystone_admin_endpoint,
         instance_metrics_writer_username => $instance_metrics_writer_username,
         instance_metrics_writer_password => $instance_metrics_writer_password,
+        ssl_ca                           => $ssl_ca,
+        ssl_cert                         => $ssl_cert,
+        ssl_chain                        => $ssl_chain,
+        ssl_key                          => $ssl_key,
     }
 
     #
@@ -167,7 +169,19 @@ node default {
         horizon_secret_key => $horizon_secret_key,
         keystone_auth_uri  => $keystone_public_endpoint,
         memcache_server_ip => $controller,
+        ssl_ca             => $ssl_ca,
+        ssl_cert           => $ssl_cert,
+        ssl_key            => $ssl_key,
         # portal_api_base_url => 'https://www.chameleoncloud.org',
+    }
+
+    # Set default values for all proxy hosts
+    Chameleoncloud::Service_proxy {
+        public_url => $public_endpoint_url,
+        ssl_ca     => $ssl_ca,
+        ssl_cert   => $ssl_cert,
+        ssl_chain  => $ssl_chain,
+        ssl_key    => $ssl_key,
     }
 
     #
@@ -264,8 +278,8 @@ node default {
         network_name     => 'public',
         cidr             => $tenant_network_public_ip_subnet,
         ip_version       => '4',
-        gateway_ip       => $tenant_network_public_ip_range[-2],
-        allocation_pools => "start=${tenant_network_public_ip_range[1]},end=${tenant_network_public_ip_range[-3]}",
+        gateway_ip       => $tenant_network_public_ip_range[1],
+        allocation_pools => "start=${tenant_network_public_ip_allocation_start},end=${tenant_network_public_ip_allocation_end}",
         dns_nameservers  => $dns_servers[0],
         enable_dhcp      => false,
         tenant_name      => 'openstack',
@@ -288,8 +302,8 @@ node default {
         network_name     => 'sharednet1',
         cidr             => $tenant_network_private_ip_subnet,
         ip_version       => '4',
-        gateway_ip       => $tenant_network_private_ip_range[-2],
-        allocation_pools => "start=${tenant_network_private_ip_range[1]},end=${tenant_network_private_ip_range[-3]}",
+        gateway_ip       => $tenant_network_private_ip_range[1],
+        allocation_pools => "start=${tenant_network_private_ip_range[2]},end=${tenant_network_private_ip_range[-2]}",
         enable_dhcp      => true,
         tenant_name      => 'openstack',
     }
@@ -395,14 +409,12 @@ node default {
     }
 
     class { '::chameleoncloud::hammers':
-        enable_ip_reaper        => true,
-        enable_orphan_resources => true,
-        enable_dirty_ports      => true,
-        enable_orphan_leases    => true,
-        enable_error_resetter   => true,
-        enable_conflict_macs    => true,
-        enable_undead_instances => true,
+      enable_ip_reaper        => true,
+      enable_orphan_resources => true,
+      enable_dirty_ports      => true,
+      enable_orphan_leases    => true,
+      enable_error_resetter   => true,
+      enable_conflict_macs    => true,
+      enable_undead_instances => true,
     }
-
-#    nova_flavor { 'baremetal': }
 }
