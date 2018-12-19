@@ -40,6 +40,7 @@ $ironic_provisioning_vlan = '400'
 $tenant_network_vlan_range = "${ironic_provisioning_vlan}:410"
 # IPv4 CIDR for subnet that will be used for public IP allocation
 $tenant_network_public_ip_subnet = $public_subnet
+$tenant_network_public_gateway	 = ''
 
 # DNS servers to use for default DNS resolution on all nodes and Neutron subnets.
 # You must define 2 or some Puppet recipes will not evaluate.
