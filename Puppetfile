@@ -40,6 +40,8 @@ mod 'lwf-remote_file', '1.1.3'
 mod 'pcfens-ca_cert'
 mod 'puppetlabs-xinetd'
 mod 'puppetlabs-vcsrepo'
+mod 'puppet-python'
+mod 'stahnma-epel'
 
 mod 'openstack-gnocchi',
     :git => 'https://github.com/openstack/puppet-gnocchi.git',

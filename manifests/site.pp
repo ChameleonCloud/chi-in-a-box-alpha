@@ -109,7 +109,7 @@ node default {
         region_name => $region,
         auth_url    => $keystone_public_endpoint,
         # project_name => $admin_project_name,
-        # tenant_name  => $admin_tenant_name,
+        tenant_name => 'openstack',
     }
 
     class { 'memcached':
@@ -392,6 +392,16 @@ node default {
         public_ip  => $public_ip,
         service_ip => $controller,
         port       => '8780',
+    }
+
+    class { '::chameleoncloud::hammers':
+        enable_ip_reaper        => true,
+        enable_orphan_resources => true,
+        enable_dirty_ports      => true,
+        enable_orphan_leases    => true,
+        enable_error_resetter   => true,
+        enable_conflict_macs    => true,
+        enable_undead_instances => true,
     }
 
 #    nova_flavor { 'baremetal': }
