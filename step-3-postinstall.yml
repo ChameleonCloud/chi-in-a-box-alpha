@@ -6,11 +6,11 @@
       - name: pxe_deploy_kernel
         container_format: aki
         disk_format: aki
-        url: https://tarballs.openstack.org/ironic-python-agent/coreos/files/coreos_production_pxe-stable-ocata.vmlinuz
+        url: "https://tarballs.openstack.org/ironic-python-agent/coreos/files/coreos_production_pxe-stable-{{ ciab_openstack_release }}.vmlinuz"
       - name: pxe_deploy_ramdisk
         container_format: aki
         disk_format: aki
-        url: https://tarballs.openstack.org/ironic-python-agent/coreos/files/coreos_production_pxe_image-oem-stable-ocata.cpio.gz
+        url: "https://tarballs.openstack.org/ironic-python-agent/coreos/files/coreos_production_pxe_image-oem-stable-{{ ciab_openstack_release }}.cpio.gz"
       - name: CC-CentOS7
         container_format: bare
         disk_format: qcow2
