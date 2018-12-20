@@ -1,0 +1,5 @@
+---
+- name: Install EPEL release repository.
+  package:
+    name: epel-release
+  when: ansible_distribution == 'CentOS'

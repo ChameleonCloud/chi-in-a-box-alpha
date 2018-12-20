@@ -1,10 +1,19 @@
 ---
 - hosts: puppetmaster
+  pre_tasks:
+    - import_tasks: tasks/base_packages.yml
   roles:
     - puppetmaster
 
 - hosts: controller
   tasks:
+    - import_tasks: tasks/base_packages.yml
+
+    - name: Install CentOS OpenStack repository.
+      package:
+        name: "centos-release-openstack-{{ ciab_openstack_release }}.noarch"
+      when: ansible_distribution == 'CentOS'
+
     - name: Install Puppet agent.
       package:
         name: puppet
