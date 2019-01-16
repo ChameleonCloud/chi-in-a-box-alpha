@@ -41,3 +41,9 @@ for i in ${keys[@]}; do
   echo "${i}: '$x'"
   crudini --set manifests/settings.pp '' \$${i} \'$x\'
 done
+
+# Heat auth encryption key is 16 characters
+i=heat_auth_encryption_key
+x=`openssl rand -hex 16`
+echo "${i}: '$x'"
+crudini --set manifests/settings.pp '' \$${i} \'$x\'

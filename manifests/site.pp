@@ -417,4 +417,20 @@ node default {
       enable_conflict_macs    => true,
       enable_undead_instances => true,
     }
+
+    class { 'chameleoncloud::heat':
+      heat_host                    => $controller,
+      heat_pass                    => $heat_pass,
+      heat_dbpass                  => $heat_dbpass,
+      heat_domain_admin_password   => $heat_domain_admin_password,
+      heat_auth_encryption_key     => $heat_auth_encryption_key,
+      region_name_for_domain_admin => $region,
+    }
+    chameleoncloud::service_proxy { 'heat_public' :
+        public_ip  => $public_ip,
+        service_ip => $controller,
+        port => '8004',
+        allow_encoded_slashes => 'on',
+    }
+
 }
