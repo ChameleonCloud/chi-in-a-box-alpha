@@ -425,6 +425,8 @@ node default {
       heat_domain_admin_password   => $heat_domain_admin_password,
       heat_auth_encryption_key     => $heat_auth_encryption_key,
       region_name_for_domain_admin => $region,
+      keystone_auth_uri            => $keystone_public_endpoint,
+      keystone_auth_url            => $keystone_admin_endpoint,
     }
     chameleoncloud::service_proxy { 'heat_public' :
         public_ip  => $public_ip,
