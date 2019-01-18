@@ -38,9 +38,9 @@ node default {
       file { $ssl_key:
           ensure => present,
           source => "file:///root/${ssl_key_base}",
-          mode   => '0600',
+          mode   => '0640',
           owner  => 'root',
-          group  => 'root',
+          group  => 'nova',
       }
 
       file { $ssl_ca:
