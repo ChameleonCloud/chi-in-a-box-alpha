@@ -352,6 +352,7 @@ node default {
         create_pxe_images               => false,
         network_node                    => $controller,
         glance_host                     => $controller,
+        sol_baud                        => '9600',
     }
     # ironic_config { 'pxe/image_cache_size':
     #     value => '300000',
