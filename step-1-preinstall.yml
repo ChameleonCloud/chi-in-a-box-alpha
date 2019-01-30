@@ -44,23 +44,23 @@
       prompt: Network interface for *private* (east-west) traffic on controller node?
     - name: ciab_private_subnet
       private: no
-      prompt:   - IPv4 subnet (CIDR format)?
+      prompt:   '- IPv4 subnet (CIDR format)?'
     - name: ciab_private_gateway
       private: no
-      prompt:   - IPv4 gateway?
+      prompt:   '- IPv4 gateway?'
     - name: ciab_private_ip
       private: no
-      prompt:   - IPv4 address?
+      prompt:   '- IPv4 address?'
     - name: ciab_public_interface
       private: no
       default: eno2
       prompt: Network interface for *public* (north-south) traffic on controller node?
     - name: ciab_public_subnet
       private: no
-      prompt:   - IPv4 subnet (CIDR format)?
+      prompt:   '- IPv4 subnet (CIDR format)?'
     - name: ciab_public_gateway
       private: no
-      prompt:   - IPv4 gateway?
+      prompt:   '- IPv4 gateway?'
     - name: ciab_public_ip
       private: no
-      prompt:   - IPv4 address?
+      prompt:   '- IPv4 address?'

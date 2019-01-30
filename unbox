@@ -21,6 +21,11 @@ postinstall() {
     --inventory "$inventory"
 }
 
+monitoring() {
+  ansible-playbook step-4-monitoring.yml \
+    --inventory "$inventory"
+}
+
 case "$taskset" in
   all)
     test -f "$globals" || {
@@ -39,11 +44,15 @@ case "$taskset" in
   postinstall)
     postinstall
     ;;
+  monitoring)
+    monitoring
+    ;;
   *)
     echo "Unknown taskset '$taskset'. Valid options are:"
     echo "  - preinstall"
     echo "  - install"
     echo "  - postinstall"
+    echo "  - monitoring"
     exit 1
     ;;
 esac

@@ -1,0 +1,62 @@
+---
+- name: Pull Prometheus image.
+  docker_image:
+    name: "{{ prometheus_docker_image }}"
+
+- name: Create Prometheus configuration directory.
+  file:
+    path: "{{ prometheus_config_dir }}"
+    state: directory
+
+- name: Configure Prometheus.
+  block:
+    - name: Get network facts for all nodes.
+      setup:
+        gather_subset: network
+      delegate_to: "{{ item }}"
+      delegate_facts: True
+      loop: "{{ groups.all }}"
+    - name: Set fact for internal host addresses.
+      set_fact:
+        ansible_internal_ipv4_addresses: >
+          {{ { item.inventory_hostname: item.ansible_interfaces
+             | map('regex_replace', '^', 'ansible_')
+             | map('replace', '-', '_')
+             | map('extract', item)
+             | selectattr('ipv4', 'defined')
+             | selectattr('ipv4.address', 'match', '10.*')
+             | map(attribute='ipv4.address')
+             | list | last} | combine(ansible_internal_ipv4_addresses | default({})) }}
+      loop: "{{ groups.all | map('extract', hostvars) | list }}"
+      loop_control:
+        label: "{{ item.inventory_hostname }}"
+    - name: Create config directory.
+      file:
+        path: "{{ prometheus_config_dir }}"
+        state: directory
+    - name: Configure Prometheus.
+      template:
+        src: prometheus.yml.j2
+        dest: "{{ prometheus_config_dir }}/prometheus.yml"
+        # mode: "0600"
+      notify:
+        - restart prometheus
+    - name: Configure Prometheus systemd service (prometheus.service).
+      template:
+        src: prometheus.service.j2
+        dest: /etc/systemd/system/prometheus.service
+      notify:
+        - restart prometheus
+  tags:
+    - configuration
+
+- name: Enable Prometheus service on boot.
+  systemd:
+    service: prometheus.service
+    # TODO: this is a thorny part of ansible and we shouldn't have to do this ourselves.
+    daemon_reload: yes
+    state: started
+    enabled: yes
+
+- include_tasks: alertmanager.yml
+  when: prometheus_install_alertmanager

@@ -1,0 +1,29 @@
+---
+global:
+  scrape_interval:     30s
+  evaluation_interval: 30s
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - {{ prometheus_alertmanager_hostname }}:{{ prometheus_alertmanager_port }}
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "/etc/prometheus/*-rules.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: ['localhost:9090']
+{% for job in prometheus_jobs if groups[job.inventory_group] is defined %}
+  - job_name: '{{ job.name }}'
+    static_configs:
+{% for host in groups[job.inventory_group] %}
+      - targets: ['{{ ansible_internal_ipv4_addresses[host] }}:{{ job.port }}']
+        labels:
+          hostname: '{{ host }}'
+{% endfor %}
+{% endfor %}
