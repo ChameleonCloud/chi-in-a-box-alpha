@@ -137,6 +137,15 @@ node default {
         db_allowed_hosts           => $controller,
     }
 
+    # Set default values for all proxy hosts
+    Chameleoncloud::Service_proxy {
+        public_url => $public_endpoint_url,
+        ssl_ca     => $ssl_ca,
+        ssl_cert   => $ssl_cert,
+        ssl_chain  => $ssl_chain,
+        ssl_key    => $ssl_key,
+    }
+
     #
     # Keystone
     #
@@ -149,13 +158,15 @@ node default {
         keystone_host                    => $controller,
         region                           => $region,
         public_endpoint                  => $keystone_public_endpoint,
+        internal_endpoint                => $keystone_internal_endpoint,
         admin_endpoint                   => $keystone_admin_endpoint,
         instance_metrics_writer_username => $instance_metrics_writer_username,
         instance_metrics_writer_password => $instance_metrics_writer_password,
-        ssl_ca                           => $ssl_ca,
-        ssl_cert                         => $ssl_cert,
-        ssl_chain                        => $ssl_chain,
-        ssl_key                          => $ssl_key,
+    }
+    chameleoncloud::service_proxy { 'keystone_public':
+        public_ip  => $public_ip,
+        service_ip => $controller,
+        port       => '5000',
     }
 
     #
@@ -173,15 +184,6 @@ node default {
         ssl_cert           => $ssl_cert,
         ssl_key            => $ssl_key,
         # portal_api_base_url => 'https://www.chameleoncloud.org',
-    }
-
-    # Set default values for all proxy hosts
-    Chameleoncloud::Service_proxy {
-        public_url => $public_endpoint_url,
-        ssl_ca     => $ssl_ca,
-        ssl_cert   => $ssl_cert,
-        ssl_chain  => $ssl_chain,
-        ssl_key    => $ssl_key,
     }
 
     #
