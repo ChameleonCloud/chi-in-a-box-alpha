@@ -163,16 +163,20 @@ node default {
     #
 
     class { 'chameleoncloud::horizon':
+        horizon_host       => $controller,
         theme_base_dir     => '/opt/theme',
         theme_name         => 'chameleon',
         help_url           => 'https://www.chameleoncloud.org/docs/bare-metal-user-guide/',
         horizon_secret_key => $horizon_secret_key,
         keystone_auth_uri  => $keystone_public_endpoint,
         memcache_server_ip => $controller,
-        ssl_ca             => $ssl_ca,
-        ssl_cert           => $ssl_cert,
-        ssl_key            => $ssl_key,
         # portal_api_base_url => 'https://www.chameleoncloud.org',
+    }
+    chameleoncloud::service_proxy { 'horizon_public':
+        public_ip  => $public_ip,
+        port       => '443',
+        service_ip => $controller,
+        service_port => '80'
     }
 
     # Set default values for all proxy hosts
