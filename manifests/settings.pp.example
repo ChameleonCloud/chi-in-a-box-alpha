@@ -97,8 +97,9 @@ $db_hammers_user = 'cc_hammers'
 $db_readonly_user = 'readonly'
 $db_server = $controller
 $instance_metrics_writer_username = 'instance_metrics_writer'
-$keystone_admin_endpoint  = "https://${public_endpoint_url}:35357"
 $keystone_public_endpoint = "https://${public_endpoint_url}:5000"
+$keystone_internal_endpoint  = "http://${controller}:35357"
+$keystone_admin_endpoint  = "http://${controller}:35357"
 $memcache_servers = "${controller}:11211"
 $rabbit_user = 'openstack'
 
